@@ -162,8 +162,25 @@
         });
 
         if (tableId == 'cart_list' || tableId == 'cart_checkout') {
-            $(document).on('click', '.changeQuantity', function(e) {
 
+            $(document).on('keyup', '#form1', function(e) {
+                if (tableId == 'cart_list') {
+                    // Prevent default action (if needed)
+                    e.preventDefault();
+
+                    // `this` refers to the button that was clicked
+                    var product = JSON.parse(this.getAttribute("data-product"));
+                    var product_id = product?.product?.id || 0;
+                    console.log(product_id);
+                    
+                    // Call your function with the appropriate arguments
+                    setQuantity(product_id, type_id,);
+                }
+            });
+
+
+            $(document).on('click', '.changeQuantity', function(e) {
+              
 
                 if (tableId == 'cart_list') {
                     // Prevent default action (if needed)
@@ -224,6 +241,32 @@
         });
 
 
+        async function updateQuantity(product_id, quantity) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                url: "/cart/change-quantity",
+                type: 'POST',
+                data: {
+                    product_id: product_id,
+                    quantity: quantity,
+                },
+                success: function(res) {
+                    if (res.status == 200) {
+                        handleResponse(res);
+                    }
+                    if (res.status == 422) {
+                        handleResponse(res);
+                    }
+                }
+            });
+
+
+        }
 
         async function setQuantity(product_id, type_id) {
             $.ajaxSetup({

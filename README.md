@@ -10,7 +10,9 @@ Run this Commands:
 ```
 - php artisan migrate     
 ```
-
+php artisan migrate --path=Modules/Smtp/Database/Migrations
+php artisan migrate --path=Modules/Setting/Database/Migrations
+php artisan migrate --path=Modules/Kyc/Database/Migrations
 ```
 php artisan db:seed --class=UsersTableSeeder
 ```

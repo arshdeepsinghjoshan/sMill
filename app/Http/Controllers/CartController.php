@@ -307,7 +307,7 @@ class CartController extends Controller
                   </button>
             
                   <div data-mdb-input-init class="form-outline">
-                    <input id="form1" min="0" name="quantity" value="' . $data->quantity . '" type="number" disabled class="form-control" />
+                    <input id="form1" min="0"  data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' name="quantity" value="' . $data->quantity . '" type="number"  class="form-control" />
                   </div>
             
                   <button data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
