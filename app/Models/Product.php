@@ -14,6 +14,10 @@ class Product extends Model
 
     const STATE_ACTIVE = 1;
 
+    const TYPE_GRIND = 0;
+
+    const TYPE_PRODUCT = 1;
+
     const STATE_DELETE = 2;
 
 
@@ -34,6 +38,18 @@ class Product extends Model
         ];
     }
 
+    public static function getTypeOptions()
+    {
+        return [
+            self::TYPE_GRIND => "Grind",
+            self::TYPE_PRODUCT => "Product",
+        ];
+    }
+    public function getType()
+    {
+        $list = self::getTypeOptions();
+        return isset($list[$this->type_id]) ? $list[$this->type_id] : 'Not Defined';
+    }
     public static function getStateOptionsBadge($stateValue)
     {
         $list = [

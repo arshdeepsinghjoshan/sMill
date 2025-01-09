@@ -30,24 +30,13 @@ use App\Models\User;
         'id',
       'name',
       'product_code',
-      'hsn_code',
-      'batch_no',
-      'agency_name',
       'description',
       'price',
       'distribution_price',
-      'salt',
-      'tax_id',
-     
-     [
-        'attribute' => 'bill_date',
-        'label' => 'Bill Date',
-        'value' => (empty($model->bill_date)) ? 'N/A' : date('Y-m-d h:i:s A', strtotime($model->bill_date)),
-     ],
-     [
-        'attribute' => 'expiry_date',
-        'label' => 'Expiry Date',
-        'value' => (empty($model->expiry_date)) ? 'N/A' : date('Y-m-d h:i:s A', strtotime($model->expiry_date)),
+   [
+        'attribute' => 'type_id',
+        'label' => 'Product Type',
+        'value' => $model->getType(),
      ],
      [
         'attribute' => 'created_at',

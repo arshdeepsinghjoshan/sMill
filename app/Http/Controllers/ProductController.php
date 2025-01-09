@@ -310,16 +310,8 @@ class ProductController extends Controller
             [
                 'name' => 'required|string|max:255',
                 'price' => 'required',
-                'hsn_code' => 'required',
-                'batch_no' => 'required|string|max:255'
-            ],
-            [
-                'title.required' => 'The subject field is required.',
-                'title.max' => 'The subject field must not exceed 255 characters.',
-                'department_id.required' => 'The department field is required.',
-                'priority_id.required' => 'The priority field is required.',
-                'message.required' => 'The message field is required.',
-                'message.max' => 'The message field must not exceed 255 characters.'
+                'description' => 'string|max:255'
+
             ]
         );
     }

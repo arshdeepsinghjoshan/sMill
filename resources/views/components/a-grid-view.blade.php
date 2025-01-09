@@ -163,19 +163,28 @@
 
         if (tableId == 'cart_list' || tableId == 'cart_checkout') {
 
+            let keyupTimeout; // Declare a timeout variable
+
             $(document).on('keyup', '#form1', function(e) {
-                if (tableId == 'cart_list') {
+                // Clear any existing timeout to debounce
+                clearTimeout(keyupTimeout);
+
+                // Set a new timeout for 1 second (1000 ms)
+                keyupTimeout = setTimeout(() => {
                     // Prevent default action (if needed)
                     e.preventDefault();
+                    if (tableId === 'cart_list') {
 
-                    // `this` refers to the button that was clicked
-                    var product = JSON.parse(this.getAttribute("data-product"));
-                    var product_id = product?.product?.id || 0;
-                    console.log(product_id);
-                    
-                    // Call your function with the appropriate arguments
-                    setQuantity(product_id, type_id,);
-                }
+                        // `this` refers to the button that was clicked
+                        const product = JSON.parse(this.getAttribute("data-product"));
+                        const product_id = product?.product?.id || 0;
+                        updateQuantity(product_id, this.value);
+                    }
+                    tableReload();
+
+                    // Reload the table
+                }, 500); // Delay of 1 second
+
             });
 
 
@@ -248,8 +257,8 @@
                 }
             });
 
-            $.ajax({
-                url: "/cart/change-quantity",
+            $.ajax({  
+                url: "/cart/update-quantity",
                 type: 'POST',
                 data: {
                     product_id: product_id,

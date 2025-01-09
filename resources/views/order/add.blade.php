@@ -31,7 +31,7 @@
 
                     <div class="card-body">
                         <div class="table-responsive">
-                            <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list'" :columns="['select', 'name', 'description','batch_no', 'price']" />
+                            <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list'" :columns="['select', 'name', 'description','type_id', 'price']" />
                         </div>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <x-a-grid-view :id="'cart_checkout'" :model="$model" :url="'cart/get-list/1/'" :filterButtonId="'order_filter_button'"
-                                :customfilterIds="['start_date', 'warehouse_id']" :columns="['total_checkout_amount']" :paging="false" :searching="false"
+                                :customfilterIds="['start_date', 'warehouse_id']" :columns="['grind_price','total_checkout_quantity','total_checkout_amount']" :paging="false" :searching="false"
                                 :info="false" />
                         </div>
                         <div class="text-end mt-3">

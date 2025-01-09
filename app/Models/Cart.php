@@ -65,6 +65,12 @@ class Cart extends Model
         $query =  Cart::my();
         return $query->sum('total_price');
     }
+
+    public function getTotalQuantitySum()
+    {
+        $query =  Cart::my();
+        return $query->sum('quantity');
+    }
     public static function getOrderStatusOptions()
     {
         return [

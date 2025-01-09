@@ -54,30 +54,13 @@
                                 'id',
                                  'name',
                                  'price',
+                                 'type_id',
                                 [
                                  'attribute'=> 'description',
                                  'label'=>'Desc'
                                 ],
-                                [
-                                 'attribute'=> 'hsn_code',
-                                 'label'=>'HSN'
-                                ],
-                                [
-                                 'attribute'=> 'batch_no',
-                                 'label'=>'Batch'
-                                ],
-                                [
-                                 'attribute'=> 'agency_name',
-                                 'label'=>'Agency'
-                                ],
-                                [
-                                 'attribute'=> 'bill_date',
-                                 'label'=>'Bill Date'
-                                ],
-                                [
-                                 'attribute'=> 'expiry_date',
-                                 'label'=>'EXP Date'
-                                ],
+                               
+                               
                                 [
                                  'attribute'=> 'created_at',
                                  'label'=>'CDate'

@@ -113,6 +113,83 @@ class CartController extends Controller
         }
     }
 
+
+    protected static function updateQuantityValidator(array $data, $id = null)
+    {
+        return Validator::make(
+            $data,
+            [
+                'product_id' => 'required|exists:products,id',
+                'quantity' => 'required|numeric',
+            ]
+        );
+    }
+    public function updateQuantity(Request $request)
+    {
+        try {
+            // Validate the request
+            $validator = $this->updateQuantityValidator($request->all());
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => $validator->messages()->first(),
+                ]);
+            }
+
+            // Retrieve the cart item
+            $cartItem = Cart::where('product_id', $request->product_id)->first();
+            if (!$cartItem) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => 'Product not found in the cart.',
+                ]);
+            }
+
+            // Retrieve the product details
+            $product = Product::find($request->product_id);
+            if (!$product) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => 'Product not found.',
+                ]);
+            }
+
+            // Determine the new quantity
+            $quantity = (float) $request->quantity;
+            // dd($quantity);
+            if ($quantity >= 100) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => "We're sorry! Only 100 unit(s) allowed in each order.",
+                ]);
+            }
+
+            // Calculate the total price
+            $totalPrice = $product->price * $quantity;
+            // dd($totalPrice, $quantity);
+            // Update the cart item
+            $cartItem->update([
+                'quantity' => $quantity,
+                'total_price' => $totalPrice,
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Quantity updated successfully!',
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Resource not found: ' . $e->getMessage(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'An internal error occurred: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
     public function import(Request $request)
     {
         try {
@@ -288,10 +365,10 @@ class CartController extends Controller
             $query = Cart::with('product')->orderBy('id', 'desc');
         }
 
-        if (!empty($id)){
-            $model =$query->first();
-            if($model)
-            $query->where('product_id', $model->product_id);
+        if (!empty($id)) {
+            $model = $query->first();
+            if ($model)
+                $query->where('product_id', $model->product_id);
         }
 
 
@@ -307,7 +384,7 @@ class CartController extends Controller
                   </button>
             
                   <div data-mdb-input-init class="form-outline">
-                    <input id="form1" min="0"  data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' name="quantity" value="' . $data->quantity . '" type="number"  class="form-control" />
+                    <input id="form1" min="0"  data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' name="quantity" value="' . number_format($data->quantity, 3) . '" type="text"  class="form-control" />
                   </div>
             
                   <button data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
@@ -333,9 +410,17 @@ class CartController extends Controller
             ->addColumn('unit_price', function ($data) {
                 return number_format($data->unit_price, 2);
             })
-            
+
             ->addColumn('total_checkout_amount', function ($data) {
                 return number_format($data->getTotalPriceSum(), 2);
+            })
+            ->addColumn('grind_price', function ($data) {
+                return ' <div data-mdb-input-init class="form-outline">
+                    <input id="form1" min="0" data-grind="1" name="quantity" value="' . number_format(2,2) . '" type="text"  class="form-control" />
+                  </div>';
+            })
+            ->addColumn('total_checkout_quantity', function ($data) {
+                return number_format($data->getTotalQuantitySum(), 2);
             })
             ->rawColumns(['created_by'])
 
@@ -369,6 +454,7 @@ class CartController extends Controller
                 'created_at',
                 'status',
                 'customerClickAble',
+                'grind_price',
                 'select'
             ])
 
@@ -394,7 +480,7 @@ class CartController extends Controller
                                 ->orWhereHas('product', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
                                 })
-                                ;
+                            ;
                         }
                     });
                 }
@@ -435,9 +521,9 @@ class CartController extends Controller
                     'message' => $validator->messages()->first(),
                 ]);
             }
-    
+
             $typeId = $request->type_id; // Get type_id from the request
-    
+
             // Handle Add to Cart
             if ($typeId == 1) {
                 // Check if the product is already in the cart
@@ -448,7 +534,7 @@ class CartController extends Controller
                         'message' => 'Product is already in the cart. Update the quantity if needed.',
                     ]);
                 }
-    
+
                 // Retrieve the product details
                 $product = Product::find($request->product_id);
                 if (!$product) {
@@ -457,7 +543,7 @@ class CartController extends Controller
                         'message' => 'Product not found.',
                     ]);
                 }
-    
+
                 $quantity = 1;
                 $cart = new Cart();
                 $cart->product_id = $request->product_id;
@@ -465,7 +551,7 @@ class CartController extends Controller
                 $cart->total_price = $product->price * $quantity;
                 $cart->unit_price = $product->price;
                 $cart->created_by_id = Auth::id();
-    
+
                 if ($cart->save()) {
                     return response()->json([
                         'status' => 200,
@@ -479,7 +565,7 @@ class CartController extends Controller
                     ]);
                 }
             }
-    
+
             // Handle Remove from Cart
             if ($typeId == 0) {
                 $cart = Cart::where('product_id', $request->product_id)->first();
@@ -489,7 +575,7 @@ class CartController extends Controller
                         'message' => 'Product not found in the cart.',
                     ]);
                 }
-    
+
                 if ($cart->delete()) {
                     return response()->json([
                         'status' => 200,
@@ -502,7 +588,7 @@ class CartController extends Controller
                     ]);
                 }
             }
-    
+
             // If type_id is invalid
             return response()->json([
                 'status' => 400,
@@ -515,7 +601,7 @@ class CartController extends Controller
             ]);
         }
     }
-    
+
 
 
 

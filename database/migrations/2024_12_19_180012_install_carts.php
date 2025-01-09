@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('unit_price', 20, 6)->unsigned()->default(0);
             $table->decimal('shipping_price', 20, 6)->unsigned()->default(0);
             $table->decimal('tax_price', 20, 6)->unsigned()->default(0);
-            $table->integer('quantity')->default(null);
+            $table->decimal('quantity', 20, 6)->default(null);
             $table->integer('state_id')->default(1); // For order status
             $table->integer('product_id')->default(null); // For order status
             $table->decimal('delivery_charge', 20, 6)->unsigned()->default(0);
