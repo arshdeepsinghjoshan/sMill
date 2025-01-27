@@ -7,6 +7,13 @@ function handleResponse(response) {
         toastG.classList.add('bg-success'); // Set success class
         // Update toast message
         toastBody.innerText = response.message;
+        if (typeof $('#cart_list').DataTable === 'function') {
+            $('#cart_list').DataTable().ajax.reload();
+        }
+        else{
+            $('#cart_list').DataTable().ajax.reload();
+
+        }
         // Show toast using Bootstrap's method
         var bsToast = new bootstrap.Toast(toastG);
         bsToast.show();
@@ -23,6 +30,9 @@ function handleError(error) {
     toastG.classList.add('bg-danger'); // Set error class
     // Update toast message
     toastBody.innerText = error;
+    if (typeof $('#cart_list').DataTable === 'function') {
+        $('#cart_list').DataTable().ajax.reload();
+    }
     // Show toast using Bootstrap's method
     var bsToast = new bootstrap.Toast(toastG);
     bsToast.show();

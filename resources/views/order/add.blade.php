@@ -31,7 +31,7 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list'" :columns="['select', 'name', 'description','type_id', 'price']" />
+                        <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list'" :columns="['select', 'name', 'description','price']" />
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                             data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
-                    <form action="{{ url('cart/custom-product') }}" method="POST" class="ajax-form" data-success-callback="formSuccessCallback">
+                    <form action="/submit" method="POST" class="ajax-form" id="ajaxform" data-success-callback="formSuccessCallback">
    
                     <div class="modal-body">
                         <div class="row">
@@ -108,11 +108,11 @@
                         <div class="row g-2">
                             <div class="col mb-0">
                                 <label for="quantity" class="form-label">Quantity</label>
-                                <input type="text" id="quantity" name="quantity" class="form-control" placeholder="1" />
+                                <input type="text" id="quantity" name="quantity" value="1" class="form-control" placeholder="1" />
                             </div>
                             <div class="col mb-0">
                                 <label for="price" class="form-label">Price</label>
-                                <input type="text" id="price" name="price" class="form-control" placeholder="23" />
+                                <input type="text" id="price" name="price" value="0" class="form-control" placeholder="23" />
                             </div>
                         </div>
                     </div>
@@ -120,7 +120,7 @@
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                             Close
                         </button>
-                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="submit" id="submit-button" class="btn btn-primary">Update</button>
                     </div>
                     </form>
                 </div>

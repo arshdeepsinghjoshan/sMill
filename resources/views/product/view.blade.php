@@ -33,11 +33,6 @@ use App\Models\User;
       'description',
       'price',
       'distribution_price',
-   [
-        'attribute' => 'type_id',
-        'label' => 'Product Type',
-        'value' => $model->getType(),
-     ],
      [
         'attribute' => 'created_at',
         'label' => 'Created at',

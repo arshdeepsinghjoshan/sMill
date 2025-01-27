@@ -32,7 +32,7 @@ class CartController extends Controller
         return Validator::make(
             $data,
             [
-                'product_id' => 'required|exists:products,id',
+                'product_id' => 'required|numeric',
                 'type_id' => 'required',
             ]
         );
@@ -50,7 +50,20 @@ class CartController extends Controller
             }
 
             // Retrieve the cart item
-            $cartItem = Cart::where('product_id', $request->product_id)->first();
+            if ($request->product_id == 0) {
+                $cartItem = Cart::where('id', $request->cartid)->first();
+            } else {
+                $cartItem = Cart::where('product_id', $request->product_id)->first();
+                // Retrieve the product details
+                $product = Product::find($request->product_id);
+                if (!$product) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => 'Product not found.',
+                    ]);
+                }
+            }
+
             if (!$cartItem) {
                 return response()->json([
                     'status' => 422,
@@ -58,14 +71,7 @@ class CartController extends Controller
                 ]);
             }
 
-            // Retrieve the product details
-            $product = Product::find($request->product_id);
-            if (!$product) {
-                return response()->json([
-                    'status' => 422,
-                    'message' => 'Product not found.',
-                ]);
-            }
+
 
             // Determine the new quantity
             $quantity = $cartItem->quantity;
@@ -86,10 +92,12 @@ class CartController extends Controller
                 }
                 $quantity--;
             }
-
-            // Calculate the total price
-            $totalPrice = $product->price * $quantity;
-
+            if (isset($product)) {
+                // Calculate the total price
+                $totalPrice = $product->price * $quantity;
+            } else {
+                $totalPrice = $cartItem->unit_price * $quantity;
+            }
             // Update the cart item
             $cartItem->update([
                 'quantity' => $quantity,
@@ -119,7 +127,7 @@ class CartController extends Controller
         return Validator::make(
             $data,
             [
-                'product_id' => 'required|exists:products,id',
+                'product_id' => 'required|numeric',
                 'quantity' => 'required|numeric',
             ]
         );
@@ -136,8 +144,20 @@ class CartController extends Controller
                 ]);
             }
 
-            // Retrieve the cart item
-            $cartItem = Cart::where('product_id', $request->product_id)->first();
+            if ($request->product_id == 0) {
+                $cartItem = Cart::where('id', $request->cartid)->first();
+            } else {
+                $cartItem = Cart::where('product_id', $request->product_id)->first();
+                // Retrieve the product details
+                $product = Product::find($request->product_id);
+                if (!$product) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => 'Product not found.',
+                    ]);
+                }
+            }
+
             if (!$cartItem) {
                 return response()->json([
                     'status' => 422,
@@ -145,17 +165,11 @@ class CartController extends Controller
                 ]);
             }
 
-            // Retrieve the product details
-            $product = Product::find($request->product_id);
-            if (!$product) {
-                return response()->json([
-                    'status' => 422,
-                    'message' => 'Product not found.',
-                ]);
-            }
 
             // Determine the new quantity
             $quantity = (float) $request->quantity;
+
+            
             // dd($quantity);
             if ($quantity >= 100) {
                 return response()->json([
@@ -164,8 +178,12 @@ class CartController extends Controller
                 ]);
             }
 
-            // Calculate the total price
-            $totalPrice = $product->price * $quantity;
+            if (isset($product)) {
+                // Calculate the total price
+                $totalPrice = $product->price * $quantity;
+            } else {
+                $totalPrice = $cartItem->unit_price * $quantity;
+            }
             // dd($totalPrice, $quantity);
             // Update the cart item
             $cartItem->update([
@@ -363,12 +381,13 @@ class CartController extends Controller
         } else {
             $query = Cart::with('product')->orderBy('id', 'desc');
         }
-
         if (!empty($id)) {
             $model = $query->first();
-            if ($model)
-                $query->where('product_id', $model->product_id);
+            if ($model) {
+                $query->where('id', $model->id);
+            }
         }
+
 
 
         return Datatables::of($query)
@@ -377,16 +396,16 @@ class CartController extends Controller
                 return '
                 <!-- Quantity -->
                 <div class="d-flex " style="max-width: 300px">
-                  <button  data-type="0" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                  <button data-cartid=\'' . $data->id . '\' data-type="0" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
                     class="btn btn-link px-2 changeQuantity">
                     <i class="fas fa-minus"></i>
                   </button>
             
                   <div data-mdb-input-init class="form-outline">
-                    <input id="form1" min="0"  data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' name="quantity" value="' . number_format($data->quantity, 3) . '" type="text"  class="form-control" />
+                    <input id="form1" min="0" data-cartid=\'' . $data->id . '\' data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' name="quantity" value="' . number_format($data->quantity, 3) . '" type="text"  class="form-control" />
                   </div>
             
-                  <button data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                  <button data-cartid=\'' . $data->id . '\'  data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
                     class="btn btn-link px-2 changeQuantity" 
                     >
                     <i class="fas fa-plus"></i>
@@ -398,7 +417,11 @@ class CartController extends Controller
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
             ->addColumn('product_name', function ($data) {
-                return !empty($data->product) ? (strlen($data->product->name) > 60 ? substr(ucfirst($data->product->name), 0, 60) . '...' : ucfirst($data->product->name)) : 'N/A';
+                return !empty($data->product)
+                    ? (strlen($data->product->name) > 60
+                        ? substr(ucfirst($data->product->name), 0, 60) . '...'
+                        : ucfirst($data->product->name))
+                    : (!empty($data->custom_product) ? $data->custom_product : "N/A");
             })
             ->addColumn('price', function ($data) {
                 return number_format($data->price, 2);
@@ -415,7 +438,7 @@ class CartController extends Controller
             })
             ->addColumn('grind_price', function ($data) {
                 return ' <div data-mdb-input-init class="form-outline">
-                    <input id="form1" min="0" data-grind="1" name="quantity" value="' . number_format(2,2) . '" type="text"  class="form-control" />
+                    <input id="form1" min="0" data-grind="1" name="quantity" value="' . number_format(2, 2) . '" type="text"  class="form-control" />
                   </div>';
             })
             ->addColumn('total_checkout_quantity', function ($data) {
@@ -601,90 +624,56 @@ class CartController extends Controller
         }
     }
 
+    protected static function customProductValidator(array $data)
+    {
+        return Validator::make(
+            $data,
+            [
+                'custom_product' => 'required|string|max:255', // Ensure the product name is provided
+                'quantity' => 'required|numeric|min:1|max:200', // Ensure the quantity is valid
+                'price' => 'required|numeric|min:0', // Ensure the price is valid
+            ]
+        );
+    }
+
     public function customProduct(Request $request)
     {
         try {
             // Validate the request data
-            $validator = $this->validator($request->all());
+            $validator = self::customProductValidator($request->all());
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => 200,
+                    'status' => 403,
                     'message' => $validator->messages()->first(),
                 ]);
             }
 
-            $typeId = $request->type_id; // Get type_id from the request
+            // Extract validated data
+            $productName = $request->input('custom_product');
+            $quantity = $request->input('quantity');
+            $price = $request->input('price', 0); // Default price to 0 if not provided
 
-            // Handle Add to Cart
-            if ($typeId == 1) {
-                // Check if the product is already in the cart
-                $existingCart = Cart::where('product_id', $request->product_id)->first();
-                if ($existingCart) {
-                    return response()->json([
-                        'status' => 409,
-                        'message' => 'Product is already in the cart. Update the quantity if needed.',
-                    ]);
-                }
+            // Create new cart entry
+            $cart = new Cart();
+            $cart->custom_product = $productName;
+            $cart->quantity = $quantity;
+            $cart->unit_price = $price;
+            $cart->total_price = $quantity * $price;
+            $cart->created_by_id = Auth::id();
 
-                // Retrieve the product details
-                $product = Product::find($request->product_id);
-                if (!$product) {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'Product not found.',
-                    ]);
-                }
-
-                $quantity = 1;
-                $cart = new Cart();
-                $cart->product_id = $request->product_id;
-                $cart->quantity = $quantity;
-                $cart->total_price = $product->price * $quantity;
-                $cart->unit_price = $product->price;
-                $cart->created_by_id = Auth::id();
-
-                if ($cart->save()) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Product added to cart successfully!',
-                        'cart' => $cart,
-                    ]);
-                } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Failed to add product to the cart.',
-                    ]);
-                }
+            // Save cart entry
+            if ($cart->save()) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Product added to cart successfully!',
+                    'cart' => $cart,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Failed to add product to the cart.',
+                ]);
             }
-
-            // Handle Remove from Cart
-            if ($typeId == 0) {
-                $cart = Cart::where('product_id', $request->product_id)->first();
-                if (!$cart) {
-                    return response()->json([
-                        'status' => 404,
-                        'message' => 'Product not found in the cart.',
-                    ]);
-                }
-
-                if ($cart->delete()) {
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Product removed from cart successfully!',
-                    ]);
-                } else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Failed to remove product from the cart.',
-                    ]);
-                }
-            }
-
-            // If type_id is invalid
-            return response()->json([
-                'status' => 400,
-                'message' => 'Invalid type_id. Use 1 to add or 0 to remove.',
-            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 500,

@@ -54,7 +54,6 @@
                                 'id',
                                  'name',
                                  'price',
-                                 'type_id',
                                 [
                                  'attribute'=> 'description',
                                  'label'=>'Desc'

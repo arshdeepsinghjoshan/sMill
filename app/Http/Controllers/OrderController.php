@@ -16,6 +16,7 @@ use DataTables;
 use Illuminate\Validation\Rule;
 use PDF;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -107,14 +108,14 @@ class OrderController extends Controller
     {
         // try {
 
-            $data = Order::where('id', $id)->first();
-            // $this->checkOwner($data, 'user_id');
-            if ($data) {
-                $pdf = PDf::loadView('invoice.order', compact('data'));
-                return $pdf->stream('sas.pdf');
-            } else {
-                return redirect('404');
-            }
+        $data = Order::where('id', $id)->first();
+        // $this->checkOwner($data, 'user_id');
+        if ($data) {
+            $pdf = PDf::loadView('invoice.order', compact('data'));
+            return $pdf->stream('sas.pdf');
+        } else {
+            return redirect('404');
+        }
         // } catch (\Exception $e) {
         //     return redirect()->back()->with('error', 'An error occurred while generating the invoice. ' . $e->getMessage());
         // }
@@ -350,6 +351,7 @@ class OrderController extends Controller
         try {
             // Get the authenticated user ID
             $userId = Auth::id();
+            DB::beginTransaction();
 
             // Fetch cart items for the authenticated user
             $cartItems = Cart::where('created_by_id', $userId)->with('product')->get();
@@ -377,16 +379,20 @@ class OrderController extends Controller
                 foreach ($cartItems as $cartItem) {
                     // dd($cartItem);
                     $product = Product::find($cartItem->product_id);
-
                     if (!$product) {
-                        return response()->json([
-                            'status' => 422,
-                            'message' => 'Product not found for cart item!',
-                        ]);
+                        if (!$cartItem->custom_product) {
+                            DB::rollBack();
+                            return response()->json([
+                                'status' => 422,
+                                'message' => 'Product not found for cart item!',
+                            ]);
+                        } else {
+                            $product['name'] =  $cartItem->custom_product;
+                        }
                     }
                     OrderItem::create([
                         'order_id' => $order->id,
-                        'product_id' => $cartItem->product_id,
+                        'product_id' => $cartItem->product_id ?? 0  ,
                         'product_json' => json_encode($product),
                         'quantity' => $cartItem->quantity,
                         'total_amount' => $cartItem->total_price,
@@ -397,19 +403,21 @@ class OrderController extends Controller
 
                 // Clear the user's cart
                 Cart::where('created_by_id', $userId)->delete();
-
+                DB::commit();
                 return response()->json([
                     'status' => 200,
                     'message' => 'Order placed successfully!',
                     'order_id' => $order->id,
                 ]);
             } else {
+                DB::rollBack();
                 return response()->json([
                     'status' => 422,
                     'message' => 'Something went wrong while placing the order!',
                 ]);
             }
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 500,
                 'message' => 'An error occurred: ' . $e->getMessage(),
