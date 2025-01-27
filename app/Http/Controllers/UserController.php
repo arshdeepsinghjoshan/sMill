@@ -28,7 +28,18 @@ class UserController extends Controller
             return redirect('user')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
-
+    public function test(Request $request)
+    {
+        dd($request->all());
+        try {
+            // if (User::isAdmin()) {
+            $model = new User();
+            return view('user.index', compact('model'));
+            // }
+        } catch (\Exception $e) {
+            return redirect('user')->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
     public function forgetPassword()
     {
         if (!User::isGuest()) {

@@ -356,7 +356,6 @@ class CartController extends Controller
 
 
 
-
     public function getList(Request $request, $id = null)
     {
         if (User::isUser()) {
@@ -602,7 +601,97 @@ class CartController extends Controller
         }
     }
 
+    public function customProduct(Request $request)
+    {
+        try {
+            // Validate the request data
+            $validator = $this->validator($request->all());
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => $validator->messages()->first(),
+                ]);
+            }
 
+            $typeId = $request->type_id; // Get type_id from the request
+
+            // Handle Add to Cart
+            if ($typeId == 1) {
+                // Check if the product is already in the cart
+                $existingCart = Cart::where('product_id', $request->product_id)->first();
+                if ($existingCart) {
+                    return response()->json([
+                        'status' => 409,
+                        'message' => 'Product is already in the cart. Update the quantity if needed.',
+                    ]);
+                }
+
+                // Retrieve the product details
+                $product = Product::find($request->product_id);
+                if (!$product) {
+                    return response()->json([
+                        'status' => 404,
+                        'message' => 'Product not found.',
+                    ]);
+                }
+
+                $quantity = 1;
+                $cart = new Cart();
+                $cart->product_id = $request->product_id;
+                $cart->quantity = $quantity;
+                $cart->total_price = $product->price * $quantity;
+                $cart->unit_price = $product->price;
+                $cart->created_by_id = Auth::id();
+
+                if ($cart->save()) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Product added to cart successfully!',
+                        'cart' => $cart,
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Failed to add product to the cart.',
+                    ]);
+                }
+            }
+
+            // Handle Remove from Cart
+            if ($typeId == 0) {
+                $cart = Cart::where('product_id', $request->product_id)->first();
+                if (!$cart) {
+                    return response()->json([
+                        'status' => 404,
+                        'message' => 'Product not found in the cart.',
+                    ]);
+                }
+
+                if ($cart->delete()) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Product removed from cart successfully!',
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Failed to remove product from the cart.',
+                    ]);
+                }
+            }
+
+            // If type_id is invalid
+            return response()->json([
+                'status' => 400,
+                'message' => 'Invalid type_id. Use 1 to add or 0 to remove.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ]);
+        }
+    }
 
 
     public function stateChange($id, $state)

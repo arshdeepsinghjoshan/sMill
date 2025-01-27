@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('quantity', 20, 6)->default(null);
             $table->integer('state_id')->default(1); // For order status
             $table->integer('product_id')->default(null); // For order status
+            $table->string('custom_product')->default(null); // For order status
             $table->decimal('delivery_charge', 20, 6)->unsigned()->default(0);
             $table->decimal('total_gst_amount', 20, 6)->unsigned()->default(0);
             $table->decimal('unit_gst_amount', 20, 6)->unsigned()->default(0);
@@ -28,10 +29,6 @@ return new class extends Migration
             $table->integer('type_id')->nullable();
             $table->integer('created_by_id')->nullable();
             $table->timestamps();
-        });
-        Schema::table('carts', function (Blueprint $table) {
-            $table->index('total_price');
-            $table->index('created_by_id');
         });
     }
 

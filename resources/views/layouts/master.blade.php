@@ -30,21 +30,42 @@
     <!-- Include SweetAlert CSS and JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-<link rel="stylesheet" href="{{ asset('/assets/css/datatables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/assets/css/datatables.min.css') }}">
+    <style>
+     .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-top: 2px solid #007bff; /* Blue top border */
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: spin 0.8s linear infinite; /* Rotate spinner */
+}
 
-  
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-<script src="{{ asset('/assets/js/datatables.min.js') }}"></script>
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+    </style>
+    <script src="{{ asset('js/formSubmit.js') }}" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="{{ asset('/assets/js/datatables.min.js') }}"></script>
     <div id="app" data-state-change-url="{{ url('/state-change') }}"></div>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
-
-
 <body>
 
+
     <div class="layout-wrapper layout-content-navbar">
+      
         <div class="layout-container">
             @include('layouts.sidebar')
             <div class="layout-page">

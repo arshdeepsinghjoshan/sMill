@@ -1,4 +1,5 @@
 <?php
+
 /**
  *@copyright : ASk. < http://arshresume.epizy.com/ >
  *@author	 : Arshdeep Singh < arshdeepsinghjoshan84@gmail.com >
@@ -9,6 +10,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited.
  *
  */
+
 namespace App\Http\Middleware;
 
 use App\Models\User;
@@ -29,7 +31,7 @@ class AdminMiddleware
         if (User::isAdmin())
             return $next($request);
 
-            redirect('/');
+        redirect('/');
         abort(403, 'Your are not allowed to access this page.');
     }
 }
