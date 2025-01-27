@@ -172,6 +172,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/cart/edit/{id}', [CartController::class, 'edit']);
         Route::get('/cart/view/{id}', [CartController::class, 'view']);
         Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
+        Route::post('cart/delete-cart-item', [CartController::class, 'deleteCartItem']);
         Route::post('cart/custom-product', [CartController::class, 'customProduct']);
 
     });

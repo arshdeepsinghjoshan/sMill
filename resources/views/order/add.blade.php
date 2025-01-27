@@ -53,7 +53,7 @@
                     </div>
                     <div class="table-responsive">
                         <x-a-grid-view :id="'cart_list'" :model="$model" :url="'cart/get-list'" :filterButtonId="'order_filter_button'"
-                            :customfilterIds="['start_date', 'warehouse_id']" :columns="['select', 'product_name', 'total_price', 'unit_price']" />
+                            :customfilterIds="['start_date', 'warehouse_id']" :columns="['select',  'product_name', 'total_price', 'unit_price',['attribute'=>'close','label'=>'delete']]" />
 
                     </div>
                 </div>
@@ -97,31 +97,31 @@
                             aria-label="Close"></button>
                     </div>
                     <form action="/submit" method="POST" class="ajax-form" id="ajaxform" data-success-callback="formSuccessCallback">
-   
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col mb-3">
-                                <label for="custom_product" class="form-label">Product Detail</label>
-                                <input type="text" id="custom_product" name="custom_product" class="form-control" placeholder="Enter Product Name" />
+
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="custom_product" class="form-label">Product Detail</label>
+                                    <input type="text" id="custom_product" name="custom_product" class="form-control" placeholder="Enter Product Name" />
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col mb-0">
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="text" id="quantity" name="quantity" value="1" class="form-control" placeholder="1" />
+                                </div>
+                                <div class="col mb-0">
+                                    <label for="price" class="form-label">Price</label>
+                                    <input type="text" id="price" name="price" value="0" class="form-control" placeholder="23" />
+                                </div>
                             </div>
                         </div>
-                        <div class="row g-2">
-                            <div class="col mb-0">
-                                <label for="quantity" class="form-label">Quantity</label>
-                                <input type="text" id="quantity" name="quantity" value="1" class="form-control" placeholder="1" />
-                            </div>
-                            <div class="col mb-0">
-                                <label for="price" class="form-label">Price</label>
-                                <input type="text" id="price" name="price" value="0" class="form-control" placeholder="23" />
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="submit" id="submit-button" class="btn btn-primary">Update</button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            Close
-                        </button>
-                        <button type="submit" id="submit-button" class="btn btn-primary">Update</button>
-                    </div>
                     </form>
                 </div>
             </div>

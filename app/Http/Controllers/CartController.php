@@ -27,6 +27,30 @@ class CartController extends Controller
         }
     }
 
+    public function deleteCartItem(Request $request)
+    {
+
+        try {
+            $cartItem = Cart::where('id', $request->cartid)->first();
+            if (!$cartItem) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => 'Product not found in the cart.',
+                ]);
+            }
+            $cartItem->delete();
+            return response()->json([
+                'status' => 200,
+                'message' => 'Cart removed!',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'An internal error occurred: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
     protected static function changeQuantityValidator(array $data, $id = null)
     {
         return Validator::make(
@@ -169,7 +193,7 @@ class CartController extends Controller
             // Determine the new quantity
             $quantity = (float) $request->quantity;
 
-            
+
             // dd($quantity);
             if ($quantity >= 100) {
                 return response()->json([
@@ -405,7 +429,7 @@ class CartController extends Controller
                     <input id="form1" min="0" data-cartid=\'' . $data->id . '\' data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' name="quantity" value="' . number_format($data->quantity, 3) . '" type="text"  class="form-control" />
                   </div>
             
-                  <button data-cartid=\'' . $data->id . '\'  data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                  <button data-cartid=\'' . $data->id . '\'  
                     class="btn btn-link px-2 changeQuantity" 
                     >
                     <i class="fas fa-plus"></i>
@@ -415,6 +439,18 @@ class CartController extends Controller
             })
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
+            })
+            ->addColumn('close', function ($data) {
+                return '
+        
+            
+                  <button data-cartid=\'' . $data->id . '\'  data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                    class="btn btn-link px-2 deleteCartItem" 
+                    >
+                    <i class="fas fa-close"></i>
+                  </button>
+                </div>
+            ';
             })
             ->addColumn('product_name', function ($data) {
                 return !empty($data->product)
@@ -477,6 +513,7 @@ class CartController extends Controller
                 'status',
                 'customerClickAble',
                 'grind_price',
+                'close',
                 'select'
             ])
 

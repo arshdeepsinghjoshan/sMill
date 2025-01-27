@@ -101,6 +101,7 @@
 
 
 
+
             // Ensure $filterButtonId is valid before using it in a jQuery selector
             var filterButtonId = '{{ $filterButtonId }}';
             if (filterButtonId) { // Added check to ensure filterButtonId is not empty
@@ -180,7 +181,7 @@
                         const product = JSON.parse(this.getAttribute("data-product"));
                         const cartid = JSON.parse(this.getAttribute("data-cartid"));
                         const product_id = product?.product?.id || 0;
-                        updateQuantity(product_id, this.value,cartid);
+                        updateQuantity(product_id, this.value, cartid);
                     }
                     tableReload();
 
@@ -204,11 +205,43 @@
                     var product_id = product?.product?.id || 0;
                     var type_id = this.getAttribute("data-type");
                     // Call your function with the appropriate arguments
-                    setQuantity(product_id, type_id,cartid);
+                    setQuantity(product_id, type_id, cartid);
                 }
                 tableReload()
 
             });
+
+            $(document).on('click', '.deleteCartItem', function(e) {
+
+
+                if (tableId == 'cart_list') {
+                    e.preventDefault();
+                    var cartid = JSON.parse(this.getAttribute("data-cartid"));
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    $.ajax({
+                        url: "/cart/delete-cart-item",
+                        type: 'POST',
+                        data: {
+                            cartid: cartid
+                        },
+                        success: function(res) {
+                            if (res.status == 200) {
+                                handleResponse(res);
+                            }
+                            if (res.status == 422) {
+                                handleResponse(res);
+                            }
+                        }
+                    });
+                }
+                tableReload()
+
+            });
+
 
 
 
@@ -225,10 +258,10 @@
             $(document).on('click', '#submit-button', function(e) {
                 e.preventDefault(); // Prevent the default form submission behavior
                 $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
                 const form = $(this).closest('form'); // Get the closest form element
                 const url = "{{url('cart/custom-product')}}"; // Get the form's action URL
                 const formData = new FormData(form[0]); // Collect form data
@@ -238,29 +271,29 @@
                 submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Submitting...');
                 if (tableId == 'cart_list') {
 
-                // Send AJAX request
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: formData,
-                    processData: false, // Important for FormData
-                    contentType: false, // Important for FormData
-                    success: function(response) {
-                  
-                        handleResponse(response); // Handle success response
-                    },
-                    error: function(xhr) {
-                        const error = xhr.responseJSON?.message || 'An error occurred!';
-                        handleError(error); // Handle error response
+                    // Send AJAX request
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: formData,
+                        processData: false, // Important for FormData
+                        contentType: false, // Important for FormData
+                        success: function(response) {
 
-                    },
-                    complete: function() {
-                        // Enable button and reset text
-                        submitButton.prop('disabled', false).html('Submit');
-                    }
-                });
-            }
-            tableReload()
+                            handleResponse(response); // Handle success response
+                        },
+                        error: function(xhr) {
+                            const error = xhr.responseJSON?.message || 'An error occurred!';
+                            handleError(error); // Handle error response
+
+                        },
+                        complete: function() {
+                            // Enable button and reset text
+                            submitButton.prop('disabled', false).html('Submit');
+                        }
+                    });
+                }
+                tableReload()
             });
         }
 
@@ -307,7 +340,7 @@
         });
 
 
-        async function updateQuantity(product_id, quantity,cartid) {
+        async function updateQuantity(product_id, quantity, cartid) {
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -335,7 +368,7 @@
 
         }
 
-        async function setQuantity(product_id, type_id,cartid = 0) {
+        async function setQuantity(product_id, type_id, cartid = 0) {
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -348,7 +381,7 @@
                 data: {
                     product_id: product_id,
                     type_id: type_id,
-                    cartid:cartid
+                    cartid: cartid
                 },
                 success: function(res) {
                     if (res.status == 200) {
