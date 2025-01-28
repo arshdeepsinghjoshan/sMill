@@ -41,6 +41,7 @@ Route::post('/registration', [AuthController::class, 'registration'])->name('add
 Route::get('/user/confirm-email/{activation_key?}', [UserController::class, 'confirmEmail']);
 Route::post('/user/confirm-email/{activation_key}', [UserController::class, 'EmailConfirm'])->name('confirm.email');
 Route::group(['middleware' => 'prevent-back-history'], function () {
+    Route::get('/user/list', [UserController::class, 'list']);
 
     Route::group(['middleware' => ['auth', 'active']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

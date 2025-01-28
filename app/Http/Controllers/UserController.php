@@ -331,6 +331,17 @@ class UserController extends Controller
         // }
         return Validator::make($data, $rules);
     }
+    public function list(Request $request)
+    {
+        $data = User::findActive()
+            ->where('name', 'like', '%' . $request->input('query') . '%')
+            ->orWhere('contact_no', 'like', '%' . $request->input('query') . '%')
+            ->select('id','name', 'contact_no')
+            ->get();
+        
+        return response()->json($data);
+    }
+    
 
     public function add(Request $request)
     {

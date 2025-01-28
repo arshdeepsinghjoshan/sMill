@@ -45,6 +45,13 @@
 
                 <div class="card-body">
                     <div class="text-right mb-2">
+                    <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#customerModal">
+                            Add Customers
+                        </button>
                         <button
                             type="button"
                             class="btn btn-primary"
@@ -128,5 +135,54 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel1">Select and Add a Customer</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <form action="/submit" method="POST" class="ajax-form" id="ajaxform" data-success-callback="formSuccessCallback">
+
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="search_name_phone_number" class="form-label">Search by Name & Phone Number</label>
+                                    <input type="text" id="search_name_phone_number" name="search_name_phone_number" class="form-control" placeholder="Harry & 954789" />
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col mb-0">
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Harry.." />
+                                </div>
+                                <div class="col mb-0">
+                                    <label for="contact_no" class="form-label">Phone Number</label>
+                                    <input type="number" id="contact_no" name="contact_no"  class="form-control" placeholder="954789.." />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="submit" id="submit-button" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <x-a-typeahead :model="''" :column="[
+    [
+        'id' =>'search_name_phone_number',
+        'url'=>'user/list'
+    ],
+    ]" />
     @endsection
