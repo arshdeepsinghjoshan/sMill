@@ -72,6 +72,12 @@ class Cart extends Model
         
         return $query->sum('quantity');
     }
+    public function getGrindPrice()
+    {
+        $model = Cart::my()->where('type_id', 1)->first();
+        
+        return $model->unit_price ?? 2;
+    }
     public static function getOrderStatusOptions()
     {
         return [

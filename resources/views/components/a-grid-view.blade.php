@@ -191,6 +191,46 @@
                 }, 500); // Delay of 1 second
 
             });
+            $(document).on('keyup', '#grindPrice', function(e) {
+                // Clear any existing timeout to debounce
+                clearTimeout(keyupTimeout);
+
+                // Set a new timeout for 1 second (1000 ms)
+                keyupTimeout = setTimeout(() => {
+                    // Prevent default action (if needed)
+                    e.preventDefault();
+                    if (tableId === 'cart_list') {
+
+                    const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+                    $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                url: "/cart/update-grind-price",
+                type: 'POST',
+                data: {
+                    grindPrice:grindPrice ?? 2,
+                },
+                success: function(res) {
+                    if (res.status == 200) {
+                        handleResponse(res);
+                    }
+                    if (res.status == 422) {
+                        handleResponse(res);
+                    }
+                }
+            });
+
+                    }
+                    tableReload();
+
+                    // Reload the table
+                }, 500); // Delay of 1 second
+
+            });
 
 
             $(document).on('click', '.changeQuantity', function(e) {
@@ -273,7 +313,7 @@
                 const url = "{{url('cart/custom-product')}}"; // Get the form's action URL
                 const formData = new FormData(form[0]); // Collect form data
                 const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
-                formData.append('grindPrice', grindPrice);
+                formData.append('grindPrice', grindPrice ?? 2);
                 // Disable button and show a loader
                 const submitButton = $(this);
                 submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Submitting...');

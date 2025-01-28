@@ -235,7 +235,33 @@ class CartController extends Controller
             ]);
         }
     }
-
+    public function updateGrindPrice(Request $request)
+    {
+        try {
+            $quantity = (float) $request->grindPrice;
+            if ($quantity < 0) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => "Invalid grind Price.",
+                ]);
+            }
+            self::addOrUpdateGrindPrice($request->grindPrice);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Quantity updated successfully!',
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Resource not found: ' . $e->getMessage(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'An internal error occurred: ' . $e->getMessage(),
+            ]);
+        }
+    }
     public function import(Request $request)
     {
         try {
@@ -426,10 +452,13 @@ class CartController extends Controller
                 return '
                 <!-- Quantity -->
                 <div class="d-flex " style="max-width: 300px">
-                  <button data-cartid=\'' . $data->id . '\' data-type="0" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
-                    class="btn btn-link px-2 changeQuantity">
-                    <i class="fas fa-minus"></i>
-                  </button>
+                  <button data-cartid=\'' . $data->id . '\' 
+                data-type="0" 
+                data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                class="btn btn-link px-2 changeQuantity" 
+                ' . ($data->getTotalQuantitySum() == 1 ? 'disabled' : '') . '>
+            <i class="fas fa-minus"></i>
+        </button>
             
                   <div data-mdb-input-init class="form-outline">
                     <input id="form1" min="0" data-cartid=\'' . $data->id . '\' data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' name="quantity" value="' . number_format($data->quantity, 3) . '" type="text"  class="form-control" />
@@ -508,7 +537,7 @@ class CartController extends Controller
             })
             ->addColumn('grind_price', function ($data) {
                 return ' <div data-mdb-input-init class="form-outline">
-                    <input id="grindPrice" min="0" data-grind="1" name="quantity" value="' . number_format(2, 2) . '" type="text"  class="form-control" />
+                    <input id="grindPrice" min="0" data-grind="1" name="quantity" value="' . number_format($data->getGrindPrice(), 2) . '" type="text"  class="form-control" />
                   </div>';
             })
             ->addColumn('total_checkout_quantity', function ($data) {
@@ -784,7 +813,6 @@ class CartController extends Controller
             // Save cart entry
             if ($cart->save()) {
             self::addOrUpdateGrindPrice($request->grindPrice);
-
                 return response()->json([
                     'status' => 200,
                     'message' => 'Product added to cart successfully!',
