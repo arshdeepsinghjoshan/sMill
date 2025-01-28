@@ -68,7 +68,8 @@ class Cart extends Model
 
     public function getTotalQuantitySum()
     {
-        $query =  Cart::my();
+        $query =  Cart::my()->whereNull('type_id');
+        
         return $query->sum('quantity');
     }
     public static function getOrderStatusOptions()

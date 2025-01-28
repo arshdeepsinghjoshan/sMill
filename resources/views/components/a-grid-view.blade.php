@@ -181,7 +181,9 @@
                         const product = JSON.parse(this.getAttribute("data-product"));
                         const cartid = JSON.parse(this.getAttribute("data-cartid"));
                         const product_id = product?.product?.id || 0;
-                        updateQuantity(product_id, this.value, cartid);
+                    const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+
+                        updateQuantity(product_id, this.value, cartid,grindPrice);
                     }
                     tableReload();
 
@@ -204,8 +206,10 @@
                     var cartid = JSON.parse(this.getAttribute("data-cartid"));
                     var product_id = product?.product?.id || 0;
                     var type_id = this.getAttribute("data-type");
+                    const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+
                     // Call your function with the appropriate arguments
-                    setQuantity(product_id, type_id, cartid);
+                    setQuantity(product_id, type_id, cartid,grindPrice);
                 }
                 tableReload()
 
@@ -217,6 +221,8 @@
                 if (tableId == 'cart_list') {
                     e.preventDefault();
                     var cartid = JSON.parse(this.getAttribute("data-cartid"));
+                    const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+
                     $.ajaxSetup({
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -226,7 +232,8 @@
                         url: "/cart/delete-cart-item",
                         type: 'POST',
                         data: {
-                            cartid: cartid
+                            cartid: cartid,
+                            grindPrice:grindPrice
                         },
                         success: function(res) {
                             if (res.status == 200) {
@@ -265,7 +272,8 @@
                 const form = $(this).closest('form'); // Get the closest form element
                 const url = "{{url('cart/custom-product')}}"; // Get the form's action URL
                 const formData = new FormData(form[0]); // Collect form data
-
+                const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+                formData.append('grindPrice', grindPrice);
                 // Disable button and show a loader
                 const submitButton = $(this);
                 submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Submitting...');
@@ -305,6 +313,7 @@
             });
             e.preventDefault();
             const productId = $(this).data('product_id'); // Get the product ID from the data attribute
+            const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
             const isChecked = $(this).is(':checked')
             this.disabled = true;
             let type_id = ''; // Declared as const
@@ -321,7 +330,8 @@
                     method: 'POST',
                     data: {
                         product_id: productId,
-                        type_id: type_id
+                        type_id: type_id,
+                        grindPrice:grindPrice ?? 2
                     },
                     success: function(response) {
 
@@ -340,7 +350,7 @@
         });
 
 
-        async function updateQuantity(product_id, quantity, cartid) {
+        async function updateQuantity(product_id, quantity, cartid,grindPrice) {
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -354,6 +364,7 @@
                     product_id: product_id,
                     quantity: quantity,
                     cartid: cartid,
+                    grindPrice:grindPrice,
                 },
                 success: function(res) {
                     if (res.status == 200) {
@@ -368,7 +379,7 @@
 
         }
 
-        async function setQuantity(product_id, type_id, cartid = 0) {
+        async function setQuantity(product_id, type_id, cartid = 0,grindPrice) {
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -381,7 +392,8 @@
                 data: {
                     product_id: product_id,
                     type_id: type_id,
-                    cartid: cartid
+                    cartid: cartid,
+                    grindPrice: grindPrice,
                 },
                 success: function(res) {
                     if (res.status == 200) {

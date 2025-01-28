@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use DataTables;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
+use InvalidArgumentException;
+use RuntimeException;
 
 class CartController extends Controller
 {
@@ -39,6 +42,7 @@ class CartController extends Controller
                 ]);
             }
             $cartItem->delete();
+            self::addOrUpdateGrindPrice($request->grindPrice);
             return response()->json([
                 'status' => 200,
                 'message' => 'Cart removed!',
@@ -127,7 +131,7 @@ class CartController extends Controller
                 'quantity' => $quantity,
                 'total_price' => $totalPrice,
             ]);
-
+            self::addOrUpdateGrindPrice($request->grindPrice);
             return response()->json([
                 'status' => 200,
                 'message' => 'Quantity updated successfully!',
@@ -214,7 +218,7 @@ class CartController extends Controller
                 'quantity' => $quantity,
                 'total_price' => $totalPrice,
             ]);
-
+            self::addOrUpdateGrindPrice($request->grindPrice);
             return response()->json([
                 'status' => 200,
                 'message' => 'Quantity updated successfully!',
@@ -417,6 +421,8 @@ class CartController extends Controller
         return Datatables::of($query)
             ->addIndexColumn()
             ->addColumn('select', function ($data) {
+                if($data->type_id!=1){
+
                 return '
                 <!-- Quantity -->
                 <div class="d-flex " style="max-width: 300px">
@@ -429,18 +435,42 @@ class CartController extends Controller
                     <input id="form1" min="0" data-cartid=\'' . $data->id . '\' data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' name="quantity" value="' . number_format($data->quantity, 3) . '" type="text"  class="form-control" />
                   </div>
             
-                  <button data-cartid=\'' . $data->id . '\'  
+                  <button data-cartid=\'' . $data->id . '\'  data-type="1"
                     class="btn btn-link px-2 changeQuantity" 
                     >
                     <i class="fas fa-plus"></i>
                   </button>
                 </div>
             ';
+                }
+                else{
+                    return '  
+                          <div class="d-flex " style="max-width: 300px">
+                  <button
+                    class="btn btn-link px-2 ">
+                   --
+                  </button>
+            
+                  <div data-mdb-input-init class="form-outline">
+                    <input id="form1" min="0"  name="quantity" value="' . number_format($data->quantity, 3) . '" type="text" disabled  class="form-control" />
+                  </div>
+            
+                  <button data-cartid=\'' . $data->id . '\'  data-type="1"
+                    class="btn btn-link px-2 " 
+                    >
+                 --
+                  </button>
+                </div>';
+
+                }
             })
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
             ->addColumn('close', function ($data) {
+             
+                if($data->type_id!=1){
+             
                 return '
         
             
@@ -451,6 +481,10 @@ class CartController extends Controller
                   </button>
                 </div>
             ';
+                }
+                else{
+                    return '----';
+                }
             })
             ->addColumn('product_name', function ($data) {
                 return !empty($data->product)
@@ -474,7 +508,7 @@ class CartController extends Controller
             })
             ->addColumn('grind_price', function ($data) {
                 return ' <div data-mdb-input-init class="form-outline">
-                    <input id="form1" min="0" data-grind="1" name="quantity" value="' . number_format(2, 2) . '" type="text"  class="form-control" />
+                    <input id="grindPrice" min="0" data-grind="1" name="quantity" value="' . number_format(2, 2) . '" type="text"  class="form-control" />
                   </div>';
             })
             ->addColumn('total_checkout_quantity', function ($data) {
@@ -562,6 +596,7 @@ class CartController extends Controller
             $data,
             [
                 'product_id' => 'required|exists:products,id', // Ensure the product exists
+                'grindPrice' => 'required', // Ensure the product exists
             ],
             [
                 'product_id.exists' => 'The selected product does not exist.',
@@ -593,7 +628,6 @@ class CartController extends Controller
                         'message' => 'Product is already in the cart. Update the quantity if needed.',
                     ]);
                 }
-
                 // Retrieve the product details
                 $product = Product::find($request->product_id);
                 if (!$product) {
@@ -612,6 +646,7 @@ class CartController extends Controller
                 $cart->created_by_id = Auth::id();
 
                 if ($cart->save()) {
+                    self::addOrUpdateGrindPrice($request->grindPrice);
                     return response()->json([
                         'status' => 200,
                         'message' => 'Product added to cart successfully!',
@@ -636,6 +671,7 @@ class CartController extends Controller
                 }
 
                 if ($cart->delete()) {
+                    self::addOrUpdateGrindPrice($request->grindPrice);
                     return response()->json([
                         'status' => 200,
                         'message' => 'Product removed from cart successfully!',
@@ -658,6 +694,53 @@ class CartController extends Controller
                 'status' => 500,
                 'message' => 'An error occurred: ' . $e->getMessage(),
             ]);
+        }
+    }
+
+    protected static function addOrUpdateGrindPrice($price)
+    {
+        // Validate the input price
+        if (!is_numeric($price) || $price <= 0) {
+            throw new InvalidArgumentException('The price must be a positive number.');
+        }
+
+        // Check if a model exists with the type_id of 1
+        $model = Cart::where('type_id', 1)->first();
+
+        if ($model) {
+            $totalQuantity = $model->getTotalQuantitySum();
+            if (!is_numeric($totalQuantity) || $totalQuantity < 0) {
+                throw new RuntimeException('The total quantity must be a non-negative number.');
+            }
+            // dd($totalQuantity);
+            if ($totalQuantity == 0) {
+                $model->delete();
+                return true;
+            }
+            $model->quantity = $totalQuantity;
+            $model->total_price = $totalQuantity * $price;
+            $model->created_by_id = Auth::id();
+            $model->unit_price = $price;
+            $model->custom_product = 'Grind';
+
+            $model->save();
+        } else {
+            $totalQuantity = (new Cart())->getTotalQuantitySum();
+            // dd($totalQuantity);
+            if (!is_numeric($totalQuantity) || $totalQuantity < 0) {
+                throw new RuntimeException('The total quantity must be a non-negative number.');
+            }
+
+            if ($totalQuantity > 0) {
+                Cart::create([
+                    'type_id' => 1,
+                    'quantity' => $totalQuantity,
+                    'total_price' => $totalQuantity * $price,
+                    'unit_price' => $price,
+                    'custom_product' => 'Grind',
+                    'created_by_id' => Auth::id(),
+                ]);
+            }
         }
     }
 
@@ -700,6 +783,8 @@ class CartController extends Controller
 
             // Save cart entry
             if ($cart->save()) {
+            self::addOrUpdateGrindPrice($request->grindPrice);
+
                 return response()->json([
                     'status' => 200,
                     'message' => 'Product added to cart successfully!',
