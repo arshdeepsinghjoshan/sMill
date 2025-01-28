@@ -1,83 +1,174 @@
+(function ($) {
 
-$(document).ready(function () {
-    console.log('i am working');
-    
-    // Set up CSRF token for AJAX requests
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    // $('.changeQuantity').click(function () {
-    //     increment(this);
-    // });
-    // Event listener for state change
-    function increment(e) {
-        var product = JSON.parse(e.getAttribute("data-product"))
-        var product_id = product?.product?.id || 0;
-        var type_id = e.getAttribute("data-type")
-        setQuantity(product_id, type_id);
+    function reloadTables(tables) {
+        tables.forEach(tableId => {
+            let table = $(tableId).DataTable();
+            table.ajax.reload();
+        });
     }
 
-    async function setQuantity(product_id, type_id) {
-        $.ajax({
-            url: "/cart/change-quantity",
-            type: 'POST',
-            data: {
+
+
+    $(document).on('click', '#placeOrder', function (e) {
+        // this.disabled = true;
+        e.preventDefault();
+        sendAjaxRequest({
+            url: '/order/add', reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
+        })
+    });
+
+    $(document).on('click', '.deleteCartItem', function (e) {
+        e.preventDefault();
+        var cartid = JSON.parse(this.getAttribute("data-cartid"));
+        const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+        sendAjaxRequest({
+            url: '/cart/delete-cart-item', data: {
+                cartid: cartid,
+                grindPrice: grindPrice ?? 2,
+            }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
+        })
+    });
+
+
+    let keyupTimeout; // Declare a timeout variable
+
+    $(document).on('keyup', '#form1', function (e) {
+        // Clear any existing timeout to debounce
+        clearTimeout(keyupTimeout);
+        // Set a new timeout for 1 second (1000 ms)
+        keyupTimeout = setTimeout(() => {
+            // Prevent default action (if needed)
+            e.preventDefault();
+            // `this` refers to the button that was clicked
+            const product = JSON.parse(this.getAttribute("data-product"));
+            const cartid = JSON.parse(this.getAttribute("data-cartid"));
+            const product_id = product?.product?.id || 0;
+            const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+            sendAjaxRequest({
+                url: '/cart/update-quantity', data: {
+                    product_id: product_id,
+                    quantity: quantity,
+                    cartid: cartid,
+                    grindPrice: grindPrice ?? 2,
+                }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
+            })
+            // Reload the table
+        }, 500); // Delay of 1 second
+
+    });
+    $(document).on('keyup', '#grindPrice', function (e) {
+        // Clear any existing timeout to debounce
+        clearTimeout(keyupTimeout);
+        // Set a new timeout for 1 second (1000 ms)
+        keyupTimeout = setTimeout(() => {
+            // Prevent default action (if needed)
+            e.preventDefault();
+            const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+            sendAjaxRequest({
+                url: '/cart/update-grind-price', data: {
+                    grindPrice: grindPrice ?? 2,
+                }, reloadTable: ['#cart_list', '#cart_checkout']
+            })
+            // Reload the table
+        }, 500); // Delay of 1 second
+
+    });
+
+
+    $(document).on('click', '.changeQuantity', function (e) {
+        e.preventDefault();
+        var product = JSON.parse(this.getAttribute("data-product"));
+        var cartid = JSON.parse(this.getAttribute("data-cartid"));
+        var product_id = product?.product?.id || 0;
+        var type_id = this.getAttribute("data-type");
+        const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+        sendAjaxRequest({
+            url: '/cart/change-quantity', data: {
                 product_id: product_id,
                 type_id: type_id,
-            },
-            success: function (res) {
+                cartid: cartid,
+                grindPrice: grindPrice,
+            }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
+        })
+    });
+    $(document).on('click', '#submit-button', function (e) {
+        e.preventDefault(); // Prevent the default form submission behavior
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        const form = $(this).closest('form'); // Get the closest form element
+        const url = '/cart/custom-product'; // Get the form's action URL
+        const formData = new FormData(form[0]); // Collect form data
+        const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+        formData.append('grindPrice', grindPrice ?? 2);
+        // Disable button and show a loader
+        const submitButton = $(this);
+        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Submitting...');
 
-                if (res.status == 200) {
-                    // getCartItems(id, total_field, nextInputElement);
-                    // UpdateTotalPrice(total_field, total_price, nextInputElement, total_qty);
-                    handleResponse(res);
-                }
-                if (res.status == 422) {
-                    handleResponse(res);
-                }
-                $('#cart_list').DataTable().ajax.reload(null, false)
+        // Send AJAX request
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: formData,
+            processData: false, // Important for FormData
+            contentType: false, // Important for FormData
+            success: function (response) {
+
+                handleResponse(response); // Handle success response
+            },
+            error: function (xhr) {
+                const error = xhr.responseJSON?.message || 'An error occurred!';
+                handleError(error); // Handle error response
+
+            },
+            complete: function () {
+                // Enable button and reset text
+                submitButton.prop('disabled', false).html('Submit');
             }
         });
 
+        reloadTables(['#cart_list', '#cart_checkout'
 
-    }
 
-    async function updateState(unique_id, model_id, model_type) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: $('#app').data('state-change-url'),
-                type: 'POST',
-                data: {
-                    model_type: model_type,
-                    model_id: model_id,
-                    attribute: 'state_id', // Replace with your actual attribute
-                    workflow: unique_id, // Assuming unique_id is the workflow state
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (response) {
-                    resolve(response);
-                },
-                error: function (xhr, status, error) {
-                    reject(xhr.responseText);
-                }
-            });
+
+
+        ])
+    });
+
+    $(document).on('click', '.select-product', function (e) {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
         });
-    }
+        e.preventDefault();
+        const productId = $(this).data('product_id'); // Get the product ID from the data attribute
+        const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+        const isChecked = $(this).is(':checked')
+        this.disabled = true;
+        let type_id = ''; // Declared as const
+        if (isChecked) {
+            type_id = '1'; // Trying to reassign a const variable
+        } else {
+            type_id = '0'; // Trying to reassign a const variable
+        }
 
+        sendAjaxRequest({ url: '/cart/add', data: { product_id: productId, type_id: type_id, grindPrice: grindPrice ?? 2 }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table'] })
+
+
+
+
+    });
     function handleResponse(response) {
         var toastG = document.getElementById('toastG');
         var toastBody = toastG.querySelector('.toast-body');
-
         if (response.status === 200) {
             toastG.classList.remove('bg-danger'); // Remove error class if previously set
-            toastG.classList.add('bg-success');   // Set success class
-
+            toastG.classList.add('bg-success'); // Set success class
             // Update toast message
             toastBody.innerText = response.message;
-
             // Show toast using Bootstrap's method
             var bsToast = new bootstrap.Toast(toastG);
             bsToast.show();
@@ -85,20 +176,48 @@ $(document).ready(function () {
             handleError(response.message);
         }
     }
-
-
     function handleError(error) {
         var toastG = document.getElementById('toastG');
         var toastBody = toastG.querySelector('.toast-body');
-
-        toastG.classList.remove('bg-success');  // Remove success class if previously set
-        toastG.classList.add('bg-danger');       // Set error class
-
+        toastG.classList.remove('bg-success'); // Remove success class if previously set
+        toastG.classList.add('bg-danger'); // Set error class
         // Update toast message
         toastBody.innerText = error;
-
         // Show toast using Bootstrap's method
         var bsToast = new bootstrap.Toast(toastG);
         bsToast.show();
     }
-});
+
+
+    function sendAjaxRequest({ url, method = 'POST', data = {}, reloadTable }) {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        const isFormData = data instanceof FormData;
+
+        $.ajax({
+            url: url,
+            type: method,
+            data: data,
+            processData: !isFormData, // Don't process FormData (it handles itself)
+            contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8', // Set correct content type
+            success: function (response) {
+                handleResponse(response);
+                reloadTables(reloadTable)
+            },
+            error: function (xhr) {
+                handleResponse(response);
+            }
+        });
+    }
+
+
+
+
+
+
+
+})(jQuery)

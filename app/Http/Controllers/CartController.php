@@ -501,8 +501,6 @@ class CartController extends Controller
                 if($data->type_id!=1){
              
                 return '
-        
-            
                   <button data-cartid=\'' . $data->id . '\'  data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
                     class="btn btn-link px-2 deleteCartItem" 
                     >
@@ -729,7 +727,7 @@ class CartController extends Controller
     protected static function addOrUpdateGrindPrice($price)
     {
         // Validate the input price
-        if (!is_numeric($price) || $price <= 0) {
+        if (!is_numeric($price) || $price < 0) {
             throw new InvalidArgumentException('The price must be a positive number.');
         }
 
