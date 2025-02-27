@@ -55,12 +55,12 @@ class ProductController extends Controller
 
                 foreach ($rows as $row) {
                     $productData = array_combine($headers, $row); // Map headers to row values
-
                     // Validate required fields in rows
                     if (
-                        empty($productData['name']) || empty($productData['product_code']) ||
-                        empty($productData['hsn_code']) || empty($productData['price'])
+                        empty($productData['name']) ||
+                        empty($productData['price'])
                     ) {
+                        continue; // Skip
                         return redirect()->back()->with('error', 'Missing required fields in one or more rows.');
                     }
                     $now = now();

@@ -32,30 +32,45 @@
 
     let keyupTimeout; // Declare a timeout variable
 
+    // let keyupTimeout; // Declare globally
+
     $(document).on('keyup', '#form1', function (e) {
-        // Clear any existing timeout to debounce
         clearTimeout(keyupTimeout);
-        // Set a new timeout for 1 second (1000 ms)
+    
         keyupTimeout = setTimeout(() => {
-            // Prevent default action (if needed)
-            e.preventDefault();
-            // `this` refers to the button that was clicked
-            const product = JSON.parse(this.getAttribute("data-product"));
-            const cartid = JSON.parse(this.getAttribute("data-cartid"));
-            const product_id = product?.product?.id || 0;
-            const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+            // Ensure `data-product` and `data-cartid` exist
+            const productData = $(this).data("product");
+            const cartid = $(this).data("cartid");
+    
+            if (!productData || !cartid) {
+                console.error("Missing product or cart ID data.");
+                return;
+            }
+    
+            const product_id = productData?.product?.id || 0;
+            const grindPrice = $('#grindPrice').val() || 2; // Default value
+            const quantity = $(this).val(); // Get input value
+    
+            // Ensure `quantity` is valid
+            if (!quantity || isNaN(quantity)) {
+                console.error("Invalid quantity");
+                return;
+            }
+    
             sendAjaxRequest({
-                url: '/cart/update-quantity', data: {
+                url: '/cart/update-quantity',
+                data: {
                     product_id: product_id,
                     quantity: quantity,
                     cartid: cartid,
-                    grindPrice: grindPrice ?? 2,
-                }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
-            })
-            // Reload the table
-        }, 500); // Delay of 1 second
-
+                    grindPrice: grindPrice,
+                },
+                reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
+            });
+    
+        }, 500); // Delay of 500ms to debounce
     });
+    
     $(document).on('keyup', '#grindPrice', function (e) {
         // Clear any existing timeout to debounce
         clearTimeout(keyupTimeout);
