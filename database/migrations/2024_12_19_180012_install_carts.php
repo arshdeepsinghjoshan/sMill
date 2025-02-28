@@ -27,6 +27,7 @@ return new class extends Migration
             $table->decimal('unit_gst_amount', 20, 6)->unsigned()->default(0);
             $table->decimal('total_discount', 20, 6)->unsigned()->nullable();
             $table->integer('type_id')->nullable();
+            $table->integer('user_id')->nullable();
             $table->integer('created_by_id')->nullable();
             $table->timestamps();
         });

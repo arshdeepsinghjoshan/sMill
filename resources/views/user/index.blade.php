@@ -29,7 +29,7 @@
                         <x-a-grid-view :id="'user_table'" :model="$model" :url="Request::segment(2) ? 'user/get-list/' . Request::segment(2) : 'user/get-list/0'" :columns="[
                                 'id',
                                 'name',
-                                'role_id',
+                                'contact_no',
                                 'email',
                                 'created_at',
                                 'status',

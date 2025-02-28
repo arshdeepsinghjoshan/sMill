@@ -137,14 +137,15 @@ class Order extends Model
     public function getStateButtonOption($state_id = null)
     {
         $list = [
-            self::STATE_INITIATED => "New",
-            self::STATE_PAID => "Active",
-            self::STATE_PENDING => "Banned",
-            self::STATE_FAILED => "Reject",
+            self::STATE_INITIATED => "secondary",
+            self::STATE_PAID => "success",
+            self::STATE_PENDING => "secondary",
+            self::STATE_FAILED => "danger",
 
         ];
         return isset($list[$state_id]) ? 'btn btn-' . $list[$state_id] : 'Not Defined';
     }
+  
     public function getOrderStatusBadge()
     {
         $list = [

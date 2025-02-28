@@ -10,9 +10,14 @@
                 minLength: 3,
                 source: function(query, process) {
                     return $jq.get("{{ isset($row['url']) ? url($row['url']) : ''}}", { query: query }, function(data) {
-                        return process(data);
+               
+
+            return process(data);
                     });
                 },
+                displayText: function(item) {
+        return item.name + ' ' +item.contact_no; // Show only contact_no in the dropdown
+    },
                 @if(isset($row['updater'])) 
                     updater: function(item) {
                         $jq('#{{ isset($row['updater']) ? $row['updater'] : '' }}').val(item.id);

@@ -22,8 +22,8 @@
             'label' => 'Orders',
         ],
     ]" />
-    <script src="{{ asset('/js/cart.js') }}"></script>
-    
+<script src="{{ asset('/js/cart.js') }}"></script>
+
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="row">
         <div class="col-lg-6 mb-4 order-0">
@@ -45,7 +45,7 @@
 
                 <div class="card-body">
                     <div class="text-right mb-2">
-                    <button
+                        <button
                             type="button"
                             class="btn btn-primary"
                             data-bs-toggle="modal"
@@ -80,6 +80,7 @@
                     <div class="text-end mt-3">
                         <button type="button" id="placeOrder" class="btn btn-primary">Place Order</button>
 
+                        <input type="hidden" id="user_id" name="user_id" value="{{ old('user_id', $model->user_id) }}" />
 
                     </div>
                 </div>
@@ -153,17 +154,19 @@
                             <div class="row">
                                 <div class="col mb-3">
                                     <label for="search_name_phone_number" class="form-label">Search by Name & Phone Number</label>
-                                    <input type="text" id="search_name_phone_number" name="search_name_phone_number" class="form-control" placeholder="Harry & 954789" />
+                                    <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="Harry & 954789" />
                                 </div>
                             </div>
-                            <div class="row g-2">
+
+                            <div class="text-center"><b>OR</b></div>
+                            <div class="row g-2 mt-2">
                                 <div class="col mb-0">
                                     <label for="name" class="form-label">Name</label>
                                     <input type="text" id="name" name="name" class="form-control" placeholder="Harry.." />
                                 </div>
                                 <div class="col mb-0">
                                     <label for="contact_no" class="form-label">Phone Number</label>
-                                    <input type="number" id="contact_no" name="contact_no"  class="form-control" placeholder="954789.." />
+                                    <input type="number" id="contact_no" name="contact_no" class="form-control" placeholder="954789.." />
                                 </div>
                             </div>
                         </div>
@@ -182,7 +185,8 @@
     <x-a-typeahead :model="''" :column="[
     [
         'id' =>'search_name_phone_number',
-        'url'=>'user/list'
+        'url'=>'user/list',
+        'updater'=>'user_id'
     ],
     ]" />
     @endsection

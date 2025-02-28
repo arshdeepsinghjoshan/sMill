@@ -11,9 +11,13 @@
 
     $(document).on('click', '#placeOrder', function (e) {
         // this.disabled = true;
+
         e.preventDefault();
+        const user_id = $('#user_id').val();
         sendAjaxRequest({
-            url: '/order/add', reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
+            url: '/order/add', data: {
+                user_id: user_id
+            }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
         })
     });
 
@@ -36,27 +40,27 @@
 
     $(document).on('keyup', '#form1', function (e) {
         clearTimeout(keyupTimeout);
-    
+
         keyupTimeout = setTimeout(() => {
             // Ensure `data-product` and `data-cartid` exist
             const productData = $(this).data("product");
             const cartid = $(this).data("cartid");
-    
+
             if (!productData || !cartid) {
                 console.error("Missing product or cart ID data.");
                 return;
             }
-    
+
             const product_id = productData?.product?.id || 0;
             const grindPrice = $('#grindPrice').val() || 2; // Default value
             const quantity = $(this).val(); // Get input value
-    
+
             // Ensure `quantity` is valid
             if (!quantity || isNaN(quantity)) {
                 console.error("Invalid quantity");
                 return;
             }
-    
+
             sendAjaxRequest({
                 url: '/cart/update-quantity',
                 data: {
@@ -67,10 +71,10 @@
                 },
                 reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
             });
-    
+
         }, 500); // Delay of 500ms to debounce
     });
-    
+
     $(document).on('keyup', '#grindPrice', function (e) {
         // Clear any existing timeout to debounce
         clearTimeout(keyupTimeout);
@@ -212,7 +216,6 @@
         });
 
         const isFormData = data instanceof FormData;
-
         $.ajax({
             url: url,
             type: method,

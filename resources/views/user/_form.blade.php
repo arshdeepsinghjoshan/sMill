@@ -30,17 +30,6 @@ use App\Models\User;
             @enderror
         </div>
 
-
-        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-            <div class="mb-3 required">
-                <label class="pt-2 fw-bold" for="btncheck1"> Email </label>
-                <input type="text" class="form-control d-block" name="email"
-                    value="{{ old('email', $model->email) }}">
-            </div>
-            @error('email')
-            <p style="color:red;">{{ $errors->first('email') }}</p>
-            @enderror
-        </div>
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 required">
                 <label class="pt-2 fw-bold" for="btncheck1"> Phone Number </label>
@@ -52,7 +41,18 @@ use App\Models\User;
             @enderror
         </div>
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-            <div class="mb-3 required">
+            <div class="mb-3">
+                <label class="pt-2 fw-bold" for="btncheck1"> Email </label>
+                <input type="text" class="form-control d-block" name="email"
+                    value="{{ old('email', $model->email) }}">
+            </div>
+            @error('email')
+            <p style="color:red;">{{ $errors->first('email') }}</p>
+            @enderror
+        </div>
+
+        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+            <div class="mb-3 ">
                 <label class="pt-2 fw-bold" for="btncheck1"> Address </label>
                 <input type="text" class="form-control d-block" name="address"
                     value="{{ old('address', $model->address) }}">

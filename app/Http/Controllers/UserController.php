@@ -314,23 +314,24 @@ class UserController extends Controller
             return redirect()->back()->with('error', $bug);
         }
     }
-
     protected static function validator(array $data, $id = null)
     {
         $rules = [
             "name" => "required|string",
-            "email" => "required|email",
+            "contact_no" => [
+                "required",
+                "numeric",
+                "min:10",
+                Rule::unique("users")->ignore($id),
+            ],
+            // "email" => "required|email",
             "profile_image" => 'nullable|image|mimes:jpeg,png,jpg'
         ];
-        // if ($id === null) {
-        //     $rules = array_merge($rules, [
-        //         "password" => "required|string|min:4",
-        //         "confirm_password" => "required|same:password",
-
-        //     ]);
-        // }
+        
+        
         return Validator::make($data, $rules);
     }
+    
     public function list(Request $request)
     {
         $data = User::findActive()

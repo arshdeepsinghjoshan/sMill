@@ -49,6 +49,7 @@ use App\Models\User;
                                     'id',
                                     'email',
                                     'name',
+                                    'address',
                                     [
                                         'attribute' => 'role_id',
                                         'label' => 'Role',

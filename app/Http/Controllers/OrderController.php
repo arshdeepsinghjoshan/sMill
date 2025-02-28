@@ -346,8 +346,26 @@ class OrderController extends Controller
         );
     }
 
+
+    protected static function orderPlaceValidator(array $data, $id = null)
+    {
+        return Validator::make(
+            $data,
+            [
+                'user_id' => 'required|exists:users,id',
+            ]
+        );
+    }
     public function add(Request $request)
     {
+        $buy_user_id = $request->user_id;
+        $validator = $this->orderPlaceValidator($request->all());
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'message' => $validator->messages()->first(),
+            ]);
+        }
         try {
             // Get the authenticated user ID
             $userId = Auth::id();
@@ -373,6 +391,7 @@ class OrderController extends Controller
             $order->created_by_id = $userId;
             $order->user_id = $userId;
             $order->total_amount = $totalPrice;
+            $order->user_id = $buy_user_id;
             $order->generateOrderNumber();
             if ($order->save()) {
                 // Associate cart items with the newly created order
@@ -392,11 +411,12 @@ class OrderController extends Controller
                     }
                     OrderItem::create([
                         'order_id' => $order->id,
-                        'product_id' => $cartItem->product_id ?? 0  ,
+                        'product_id' => $cartItem->product_id ?? 0,
                         'product_json' => json_encode($product),
                         'quantity' => $cartItem->quantity,
                         'total_amount' => $cartItem->total_price,
                         'unit_amount' => $cartItem->unit_price,
+                        'user_id' => $order->user_id,
                         'created_by_id' => $userId,
                     ]);
                 }
