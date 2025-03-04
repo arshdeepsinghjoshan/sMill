@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\ProductCategoryController;
@@ -177,6 +178,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::post('cart/update-grind-price', [CartController::class, 'updateGrindPrice']);
 
         Route::post('cart/custom-product', [CartController::class, 'customProduct']);
+
+
+
+        Route::post('installment/store', [InstallmentController::class, 'store']);
 
     });
 });

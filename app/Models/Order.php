@@ -216,7 +216,7 @@ class Order extends Model
                 ];
                 $menu['payment'] = [
                     'label' => 'fa fa-credit-card',
-                    'color' => 'btn btn-primary managePayment',
+                    'color' => 'btn btn-primary open-pending-payment-modal',
                     'title' => __('Order'),
 
                 ];

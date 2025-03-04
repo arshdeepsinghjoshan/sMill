@@ -105,44 +105,40 @@ use App\Models\User;
         </div>
     </div>
 
-    <button
-        type="button"
-        class="btn btn-primary"
-        data-bs-toggle="modal"
-        data-bs-target="#customerModal">
-        Add Customers
-    </button>
     <!-- pending payment modal -->
     <div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel1">Add payment</h5>
+                    <h5 class="modal-title" id="exampleModalLabel1">Add payment {{$model->order_number}}</h5>
                     <button
                         type="button"
                         class="btn-close"
                         data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
-                <form action="/" method="POST" class="ajax-form" id="ajaxform" data-success-callback="formSuccessCallback">
-
+                <form action="#" class="ajax-form" id="ajaxform" data-success-callback="formSuccessCallback">
                     <div class="modal-body">
                         <div class="row">
                             <div class="col mb-3">
-                                <label for="search_name_phone_number" class="form-label">Search by Name & Phone Number</label>
-                                <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="Harry & 954789" />
+                                <label for="search_name_phone_number" class="form-label">Total Amount</label>
+                                <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="{{number_format($model->total_amount,2)}}" disabled />
+                            </div>
+                            <div class="col mb-3">
+                                <label for="search_name_phone_number" class="form-label">Paid Amount</label>
+                                <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="{{ number_format($model->paidAmount(), 2) }}" disabled />
+                            </div>
+                            <div class="col mb-3">
+                                <label for="search_name_phone_number" class="form-label">Pending Amount</label>
+                                <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="{{ number_format($model->total_amount - $model->paidAmount(), 2) }}" disabled />
                             </div>
                         </div>
 
-                        <div class="text-center"><b>OR</b></div>
                         <div class="row g-2 mt-2">
                             <div class="col mb-0">
-                                <label for="name" class="form-label">Name</label>
-                                <input type="text" id="name" name="name" class="form-control" placeholder="Harry.." />
-                            </div>
-                            <div class="col mb-0">
-                                <label for="contact_no" class="form-label">Phone Number</label>
-                                <input type="number" id="contact_no" name="contact_no" class="form-control" placeholder="954789.." />
+                                <label for="amount" class="form-label">Pay Amount</label>
+                                <input type="text" id="amount" name="amount" class="form-control" placeholder="200.." />
+                                <input type="hidden" id="order_id" name="order_id" class="form-control" value="{{$model->id}}" />
                             </div>
                         </div>
                     </div>
@@ -150,7 +146,7 @@ use App\Models\User;
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                             Close
                         </button>
-                        <button type="submit" id="add-customer" class="btn btn-primary">Update</button>
+                        <button type="submit" id="add-pending-payment" class="btn btn-primary">Add Payment</button>
                     </div>
                 </form>
             </div>
