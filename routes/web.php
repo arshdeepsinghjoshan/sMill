@@ -41,6 +41,7 @@ Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/registration', [AuthController::class, 'registration'])->name('add.registration');
 Route::get('/user/confirm-email/{activation_key?}', [UserController::class, 'confirmEmail']);
 Route::post('/user/confirm-email/{activation_key}', [UserController::class, 'EmailConfirm'])->name('confirm.email');
+Route::get('/generate-pdf', [UserController::class, 'generatePDF']);
 Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/user/list', [UserController::class, 'list']);
 

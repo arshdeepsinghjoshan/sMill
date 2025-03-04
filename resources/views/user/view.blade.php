@@ -56,6 +56,11 @@ use App\Models\User;
                                         'value' => $model->getRole(),
                                         'visible' => true,
                                     ],
+                                      [
+                                        'attribute' => 'Pending_amount',
+                                        'value' => number_format($model->pendingOrders(),2),
+                                        'visible' => true,
+                                    ],
                                     [
                                         'attribute' => 'email_verified',
                                         'label' => 'Email Verified',

@@ -36,6 +36,16 @@ use App\Models\User;
         'value' =>  number_format($model->total_amount, 2),
         'visible'=> true   
      ],
+       [
+        'attribute' => 'pending_amount',
+        'value' => $model->order_payment_status !=1 ? number_format($model->remainingAmount(), 2) : 0,
+        'visible'=> true   
+     ],
+      [
+        'attribute' => 'paid_amount',
+        'value' => $model->order_payment_status !=1 ? number_format($model->paidAmount(), 2) : 0,
+        'visible'=> true   
+     ],
       [
         'attribute' => 'updated_at',
         'label' => 'Updated at',
@@ -74,6 +84,12 @@ use App\Models\User;
                         </button>
                     </li>
 
+                     <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-installments" aria-controls="navs-justified-messages" aria-selected="false">
+                            <i class="tf-icons bx bx-message-square"></i> Installments
+                        </button>
+                    </li>
+
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane show active" id="navs-justified-wallet" role="tabpanel">
@@ -89,6 +105,24 @@ use App\Models\User;
                                 'status',
                                 'created_at',
                                 'created_by',
+                                'action',
+                            ]" />
+
+
+
+                        </div>
+                    </div>
+
+                     <div class="tab-pane fade " id="navs-justified-installments" role="tabpanel">
+                        <div class="table-responsive">
+
+
+
+                            <x-a-relation-grid :id="'installments_table'" :relation="'installments'" :model="$model" :columns="[
+                                'id',
+                                'amount',
+                                'status',
+                                'created_at',
                                 'action',
                             ]" />
 
@@ -122,15 +156,15 @@ use App\Models\User;
                         <div class="row">
                             <div class="col mb-3">
                                 <label for="search_name_phone_number" class="form-label">Total Amount</label>
-                                <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="{{number_format($model->total_amount,2)}}" disabled />
+                                <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" value="{{number_format($model->total_amount,2)}}" disabled />
                             </div>
                             <div class="col mb-3">
-                                <label for="search_name_phone_number" class="form-label">Paid Amount</label>
-                                <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="{{ number_format($model->paidAmount(), 2) }}" disabled />
+                                <label for="paid_amount" class="form-label">Paid Amount</label>
+                                <input type="text" id="paid_amount" autocomplete="off" name="paid_amount" class="form-control" value="{{ number_format($model->paidAmount(), 2) }}" disabled />
                             </div>
                             <div class="col mb-3">
-                                <label for="search_name_phone_number" class="form-label">Pending Amount</label>
-                                <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="{{ number_format($model->total_amount - $model->paidAmount(), 2) }}" disabled />
+                                <label for="pending_amount" class="form-label">Pending Amount</label>
+                                <input type="text" id="pending_amount" autocomplete="off" name="pending_amount" class="form-control" value="{{ number_format($model->total_amount - $model->paidAmount(), 2) }}" disabled />
                             </div>
                         </div>
 
@@ -139,6 +173,7 @@ use App\Models\User;
                                 <label for="amount" class="form-label">Pay Amount</label>
                                 <input type="text" id="amount" name="amount" class="form-control" placeholder="200.." />
                                 <input type="hidden" id="order_id" name="order_id" class="form-control" value="{{$model->id}}" />
+                                <input type="hidden" id="user_id" name="user_id" class="form-control" value="{{$model->user_id}}" />
                             </div>
                         </div>
                     </div>

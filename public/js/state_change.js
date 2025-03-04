@@ -40,6 +40,9 @@ $(document).ready(function () {
             processData: false, // Important for FormData
             contentType: false, // Important for FormData
             success: function (response) {
+                $('#pending_amount').val(response.remaining_amount); //
+                $('#paid_amount').val(response.paid_amount); //
+                $('#amount').val(''); //
                 handleResponse(response); // Handle success response
             },
             error: function (xhr) {

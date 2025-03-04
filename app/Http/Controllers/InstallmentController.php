@@ -115,30 +115,44 @@ class InstallmentController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'amount' => 'required|numeric|min:1',
-            'payment_method' => 'nullable|string'
-        ]);
+        try {
 
-        $order = Order::find($request->order_id);
+            $request->validate([
+                'order_id' => 'required|exists:orders,id',
+                'amount' => 'required|numeric|min:1',
+                'user_id' => 'required|exists:users,id',
+                'payment_method' => 'nullable|string'
+            ]);
 
-        if ($order->remainingAmount() < $request->amount) {
-            return response()->json(['message' => 'Payment exceeds the remaining amount'], 400);
+            $order = Order::find($request->order_id);
+
+            if ($order->order_payment_status == 1) {
+                return response()->json(['message' => 'Paid Amount'], 400);
+            }
+            if ($order->remainingAmount() < $request->amount) {
+                return response()->json(['message' => 'Payment exceeds the remaining amount'], 400);
+            }
+
+            $installment = Installment::create([
+                'order_id' => $request->order_id,
+                'amount' => $request->amount,
+                'created_by_id' => $request->user_id,
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Installment added successfully',
+                'paid_amount' => $order->paidAmount(),
+                'remaining_amount' => $order->remainingAmount(),
+            ]);
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => $e->getMessage(),
+                ]);
+            }
         }
-
-        $installment = Installment::create([
-            'order_id' => $request->order_id,
-            'amount' => $request->amount,
-            'payment_method' => $request->payment_method,
-            'paid_at' => now()
-        ]);
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Installment added successfully',
-            'remaining_amount' => $order->remainingAmount()
-        ]);
     }
 
 

@@ -123,7 +123,7 @@ class OrderController extends Controller
 
     public function getSalesData(Request $request)
     {
-        $model = Order::get();
+        $model = Order::findActive('order_payment_status')->get();
 
         // Calculate total sales for each day
         $totalSalesData = $model->groupBy(function ($date) {

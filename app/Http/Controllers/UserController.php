@@ -14,9 +14,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class UserController extends Controller
 {
+    public function generatePDF()
+    {
+        $data = [
+            'title' => 'Laravel PDF Example',
+            'date' => date('m/d/Y'),
+            'content' => 'This is a sample PDF generated using Laravel.'
+        ];
+
+        $pdf = Pdf::loadView('pdf.document', $data);
+
+        return $pdf->download('document.pdf'); // To download the file
+        // return $pdf->stream(); // To display in browser
+    }
     public function index()
     {
         try {
