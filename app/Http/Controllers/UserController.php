@@ -327,29 +327,38 @@ class UserController extends Controller
             // "email" => "required|email",
             "profile_image" => 'nullable|image|mimes:jpeg,png,jpg'
         ];
-        
-        
+
+
         return Validator::make($data, $rules);
     }
-    
+
     public function list(Request $request)
     {
         $data = User::findActive()
             ->where('name', 'like', '%' . $request->input('query') . '%')
             ->orWhere('contact_no', 'like', '%' . $request->input('query') . '%')
-            ->select('id','name', 'contact_no')
+            ->select('id', 'name', 'contact_no')
             ->get();
-        
+
         return response()->json($data);
     }
-    
+
 
     public function add(Request $request)
     {
+
         try {
             DB::beginTransaction();
             if ($this->validator($request->all())->fails()) {
                 $message = $this->validator($request->all())->messages()->first();
+
+                if (request()->ajax()) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => $message,
+                    ]);
+                }
+
                 return redirect()->back()->withInput()->with('error', $message);
             }
             $model = new User();
@@ -368,16 +377,42 @@ class UserController extends Controller
                 $walletModel->generateWalletNumber();
                 if (!$walletModel->save()) {
                     DB::rollBack();
+
+                    if (request()->ajax()) {
+                        return response()->json([
+                            'status' => 422,
+                            'message' => 'Unable to save the User!',
+                        ]);
+                    }
                     return redirect('/')->with('error', 'Unable to save the User!');
                 }
                 DB::commit();
+                if (request()->ajax()) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'User created successfully!',
+                        'user_id'  => $model->id
+                    ]);
+                }
                 return redirect('/user/view/' . $model->id)->with('success', 'User created successfully!');
             } else {
                 DB::rollBack();
+                if (request()->ajax()) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => 'Unable to save the User!',
+                    ]);
+                }
                 return redirect('/user')->with('error', 'Unable to save the User!');
             }
         } catch (\Exception $e) {
             DB::rollBack();
+            if (request()->ajax()) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => $e->getMessage(),
+                ]);
+            }
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }

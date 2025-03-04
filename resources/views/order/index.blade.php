@@ -27,7 +27,9 @@
                                 'id',
                                 'order_number',
                                 'total_amount',
-                                'created_at',
+                                'created_at', 
+                                'status',
+                                'payment_status',
                                 'created_by',
                                 'action',
                             ]" />

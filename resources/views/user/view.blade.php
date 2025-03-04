@@ -109,8 +109,8 @@ use App\Models\User;
                 <ul class="nav nav-tabs nav-fill" role="tablist">
 
                     <li class="nav-item">
-                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-wallet" aria-controls="navs-justified-messages" aria-selected="false">
-                            <i class="tf-icons bx bx-message-square"></i> Wallet
+                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-order" aria-controls="navs-justified-messages" aria-selected="false">
+                            <i class="tf-icons bx bx-message-square"></i> Orders
                         </button>
                     </li>
                     <li class="nav-item">
@@ -120,20 +120,23 @@ use App\Models\User;
                     </li>
                 </ul>
                 <div class="tab-content">
-                    <div class="tab-pane show active" id="navs-justified-wallet" role="tabpanel">
+                    <div class="tab-pane show active" id="navs-justified-order" role="tabpanel">
                         <div class="table-responsive">
 
 
 
-                            <x-a-relation-grid :id="'wallet_table'" :relation="'wallet'" :model="$model" :columns="[
-                                        'id',
-                                        'wallet_number',
-                                        'balance',
-                                        'status',
-                                        'created_at',
-                                        'created_by',
-                                        'action',
-                                    ]" />
+                            <x-a-relation-grid :id="'order_table'" :relation="'orders'" :model="$model" :columns=" [
+                            'id',
+                            'order_number',
+                            'total_amount',
+                            'updated_at',
+                            'created_at',
+                            'status',
+                            'payment_status',
+                            'created_by',
+                            'action',
+                            ]" />
+
 
 
 

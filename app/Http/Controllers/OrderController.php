@@ -262,10 +262,16 @@ class OrderController extends Controller
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
             })
+            ->addColumn('payment_status', function ($data) {
+                return '<span class="' . $data->getPaymentBadgeOption() . '">' . $data->getPayment() . '</span>';
+            })
             ->rawColumns(['created_by'])
 
             ->addColumn('created_at', function ($data) {
                 return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
+            })
+            ->addColumn('updated_at', function ($data) {
+                return (empty($data->updated_at)) ? 'N/A' : date('Y-m-d', strtotime($data->updated_at));
             })
             ->addColumn('department_id', function ($data) {
                 return $data->getDepartment ?  $data->getDepartment->title : 'N/A';
@@ -286,7 +292,8 @@ class OrderController extends Controller
                 'action',
                 'created_at',
                 'status',
-                'customerClickAble'
+                'customerClickAble',
+                'payment_status'
             ])
 
             ->filter(function ($query) {

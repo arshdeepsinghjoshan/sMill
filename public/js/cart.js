@@ -155,7 +155,51 @@
 
         ])
     });
+    $(document).on('click', '#add-customer', function (e) {
+        e.preventDefault(); // Prevent the default form submission behavior
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        const form = $(this).closest('form'); // Get the closest form element
+        const url = '/user/add'; // Get the form's action URL
+        const formData = new FormData(form[0]); // Collect form data
+        const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
+        formData.append('grindPrice', grindPrice ?? 2);
+        // Disable button and show a loader
+        const submitButton = $(this);
+        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Submitting...');
 
+        // Send AJAX request
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: formData,
+            processData: false, // Important for FormData
+            contentType: false, // Important for FormData
+            success: function (response) {
+                $('#user_id').val(response.user_id);
+                handleResponse(response); // Handle success response
+            },
+            error: function (xhr) {
+                const error = xhr.responseJSON?.message || 'An error occurred!';
+                handleError(error); // Handle error response
+
+            },
+            complete: function () {
+                // Enable button and reset text
+                submitButton.prop('disabled', false).html('Submit');
+            }
+        });
+
+        reloadTables(['#cart_list', '#cart_checkout'
+
+
+
+
+        ])
+    });
     $(document).on('click', '.select-product', function (e) {
         $.ajaxSetup({
             headers: {

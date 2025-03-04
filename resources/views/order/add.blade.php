@@ -148,7 +148,7 @@
                             data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
-                    <form action="/submit" method="POST" class="ajax-form" id="ajaxform" data-success-callback="formSuccessCallback">
+                    <form action="/" method="POST" class="ajax-form" id="ajaxform" data-success-callback="formSuccessCallback">
 
                         <div class="modal-body">
                             <div class="row">
@@ -174,7 +174,7 @@
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                 Close
                             </button>
-                            <button type="submit" id="submit-button" class="btn btn-primary">Update</button>
+                            <button type="submit" id="add-customer" class="btn btn-primary">Update</button>
                         </div>
                     </form>
                 </div>

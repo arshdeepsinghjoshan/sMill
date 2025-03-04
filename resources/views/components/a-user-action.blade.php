@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card mt-1">
     <h5 class="card-header">{{ __($title .' Actions') }}</h5>
     <div class="card-body">
         <div class="mt-2 text-right">

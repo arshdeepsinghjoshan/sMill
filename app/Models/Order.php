@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use DataTables;
 
 class Order extends Model
 {
@@ -18,69 +19,38 @@ class Order extends Model
 
     protected $guarded = ['id'];
 
-    const STATE_INITIATED = 0;
+    const STATE_PENDING = 0;
+    const STATE_COMPLETED = 1;
+    const STATE_CANCEL = 2;
+    const STATE_REJECTED = 3;
 
-    const STATE_PAID = 1;
+    const PAYMENT_PENDING = 0;
+    const PAYMENT_PAID = 1;
+    const PAYMENT_INPROGESS = 2;
+    const PAYMENT_REJECTED = 4;
+    const PAYMENT_CANCEL = 3;
 
-    const STATE_FAILED = 2;
-
-    const STATE_PENDING = 3;
-
-
-    const ORDER_STATE_PLACED = 0;
-
-    const ORDER_STATE_PARTIAL_SHIPMENT = 6;
-
-    const ORDER_STATE_RECEIVED = 5;
-
-
-    const ORDER_STATE_PREPARING = 4;
-
-    const ORDER_STATE_CANCEL = 2;
-
-    const ORDER_STATE_READ_TO_DELIVER = 3;
-
-    const ORDER_STATE_DELIVERED = 1;
-
-
-
-
-    const SHIPPING_METHOD_PICKUP = 0;
-
-    const SHIPPING_METHOD_COURIER = 1;
 
 
     public static function getStateOptions()
     {
         return [
-            self::STATE_INITIATED => "Initiated",
-            self::STATE_PAID => "Paid",
-            self::STATE_FAILED => "Failed",
             self::STATE_PENDING => "Pending",
+            self::STATE_COMPLETED => "Completed",
+            self::STATE_CANCEL => "Cancel",
+            self::STATE_REJECTED => "Rejected",
         ];
     }
 
-    public static function getOrderStatusOptions()
+    public static function getPaymentOptions()
     {
         return [
-            self::ORDER_STATE_PLACED => "Placed",
-            self::ORDER_STATE_PARTIAL_SHIPMENT => "Partial Shipment",
-            self::ORDER_STATE_RECEIVED => "Received",
-            self::ORDER_STATE_PREPARING => "Preparing",
-            self::ORDER_STATE_READ_TO_DELIVER => "Ready to deliver",
-            self::ORDER_STATE_DELIVERED => "Delivered",
-            self::ORDER_STATE_CANCEL => "Cancel",
+            self::PAYMENT_PENDING => "Pending",
+            self::PAYMENT_PAID => "Paid",
+            self::PAYMENT_INPROGESS => "In Progress",
+            self::PAYMENT_REJECTED => "Rejected",
+            self::PAYMENT_CANCEL => "Cancel",
         ];
-    }
-
-
-    public function getShippingMethodOptions($shippingMethod = null)
-    {
-        $list = [
-            self::SHIPPING_METHOD_COURIER => "Courier",
-            self::SHIPPING_METHOD_PICKUP => "Pick-up",
-        ];
-        return isset($list[$shippingMethod]) ? $list[$shippingMethod] : $list;
     }
 
 
@@ -93,7 +63,12 @@ class Order extends Model
     public function getState()
     {
         $list = self::getStateOptions();
-        return isset($list[$this->status]) ? $list[$this->status] : 'Not Defined';
+        return isset($list[$this->state_id]) ? $list[$this->state_id] : 'Not Defined';
+    }
+    public function getPayment()
+    {
+        $list = self::getPaymentOptions();
+        return isset($list[$this->order_payment_status]) ? $list[$this->order_payment_status] : 'Not Defined';
     }
 
     public function getOrderStatus()
@@ -127,99 +102,46 @@ class Order extends Model
     public function getStateBadge()
     {
         $list = [
-            self::STATE_INITIATED => "New",
-            self::STATE_PAID => "Active",
             self::STATE_PENDING => "Banned",
-            self::STATE_FAILED => "Reject",
+            self::STATE_COMPLETED => "Active",
+            self::STATE_CANCEL => "Reject",
+            self::STATE_REJECTED => "Reject",
         ];
         return isset($list[$this->status]) ?  'badge badge-' . $list[$this->status] : 'Not Defined';
     }
     public function getStateButtonOption($state_id = null)
     {
         $list = [
-            self::STATE_INITIATED => "secondary",
-            self::STATE_PAID => "success",
             self::STATE_PENDING => "secondary",
-            self::STATE_FAILED => "danger",
+            self::STATE_COMPLETED => "success",
+            self::STATE_CANCEL => "danger",
+            self::STATE_REJECTED => "danger",
+            self::PAYMENT_REJECTED => "danger",
+
 
         ];
         return isset($list[$state_id]) ? 'btn btn-' . $list[$state_id] : 'Not Defined';
     }
-  
-    public function getOrderStatusBadge()
+
+    public function getPaymentBadgeOption()
     {
         $list = [
-            self::ORDER_STATE_RECEIVED => "New",
-            self::ORDER_STATE_PLACED => "New",
-            self::ORDER_STATE_PARTIAL_SHIPMENT => "New",
-            self::ORDER_STATE_PREPARING => "New",
-            self::ORDER_STATE_READ_TO_DELIVER => "New",
-            self::ORDER_STATE_DELIVERED => "Active",
-            self::ORDER_STATE_CANCEL => "Reject",
+            self::PAYMENT_PENDING => "secondary",
+            self::PAYMENT_PAID => "success",
+            self::PAYMENT_INPROGESS => "secondary",
+            self::PAYMENT_REJECTED => "danger",
+            self::PAYMENT_CANCEL => "danger",
         ];
-        return isset($list[$this->order_status]) ?  'badge badge-' . $list[$this->order_status] : 'New';
-    }
-
-    public function stateChange()
-    {
-        try {
-            if ($this->order_status == Self::ORDER_STATE_PARTIAL_SHIPMENT) {
-                DB::beginTransaction();
-                $partialShipment = PartialShipment::firstOrNew(['order_id' => $this->id]);
-                $partialShipment->warehouse_id = $this->warehouse_id;
-                $partialShipment->state_id = PartialShipment::STATE_PENDING;
-                $partialShipment->created_by_id = Auth::id();
-                if (!$partialShipment->save()) {
-                    DB::rollBack();
-                    return true;
-                }
-                foreach ($this->saleItems as $saleItem) {
-                    $warehouseInventoryModel = WarehouseInventory::findActive()
-                        ->where([
-                            'product_id' => $saleItem->product_id,
-                            'warehouse_id' => $saleItem->warehouse_id
-                        ])
-                        ->select('remaining_quantity')
-                        ->first();
-                    $partialShipmentItem = PartialShipmentItem::firstOrNew([
-                        'partial_shipment_id' => $partialShipment->id,
-                        'product_id' => $saleItem->product_id,
-                        'order_id' => $this->id
-                    ]);
-                    $partialShipmentItem->warehouse_id = $this->warehouse_id;
-                    $partialShipmentItem->total_quantity = $saleItem->quantity;
-                    $partialShipmentItem->created_by_id = Auth::id();
-                    $partialShipmentItem->state_id = PartialShipmentItem::STATE_ACTIVE;
-                    if ($warehouseInventoryModel && $warehouseInventoryModel->remaining_quantity < $saleItem->quantity) {
-                        $partialShipmentItem->pending_quantity = abs($warehouseInventoryModel->remaining_quantity - $saleItem->quantity);
-                    } else {
-                        $partialShipmentItem->pending_quantity = $saleItem->quantity;
-                    }
-                    if (!$partialShipmentItem->save()) {
-                        DB::rollBack();
-                        return true;
-                    }
-                }
-                DB::commit();
-            }
-            $this->save();
-            return true;
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return false;
-        }
+        return isset($list[$this->order_payment_status]) ?  'btn btn-' . $list[$this->order_payment_status] : 'Not Defined';
     }
 
     public function getStateBadgeOption()
     {
         $list = [
-            self::STATE_INITIATED => "secondary",
             self::STATE_PENDING => "secondary",
-            self::STATE_PAID => "success",
-            self::STATE_FAILED => "danger",
-            self::ORDER_STATE_PREPARING => "secondary",
-            self::ORDER_STATE_PARTIAL_SHIPMENT => "secondary",
-            self::ORDER_STATE_RECEIVED => "secondary",
+            self::STATE_COMPLETED => "success",
+            self::STATE_REJECTED => "danger",
+            self::STATE_CANCEL => "danger",
         ];
         return isset($list[$this->state_id]) ? 'btn btn-' . $list[$this->state_id] : 'Not Defined';
     }
@@ -265,7 +187,20 @@ class Order extends Model
     }
 
 
+    public function installments()
+    {
+        return $this->hasMany(Installment::class);
+    }
 
+    public function paidAmount()
+    {
+        return $this->installments()->sum('amount');
+    }
+
+    public function remainingAmount()
+    {
+        return $this->total_amount - $this->paidAmount();
+    }
 
     public function updateMenuItems($action, $model = null)
     {
@@ -277,6 +212,12 @@ class Order extends Model
                     'color' => 'btn btn-primary',
                     'title' => __('Order'),
                     'url' => url('/order'),
+
+                ];
+                $menu['payment'] = [
+                    'label' => 'fa fa-credit-card',
+                    'color' => 'btn btn-primary managePayment',
+                    'title' => __('Order'),
 
                 ];
 
@@ -318,5 +259,78 @@ class Order extends Model
     {
         $user_data = User::find($id);
         return $user_data->unique_id ?? 'N/A';
+    }
+
+    public function relationGridView($queryRelation, $request)
+    {
+        $dataTable = Datatables::of($queryRelation)
+            ->addIndexColumn()
+
+            ->addColumn('created_by', function ($data) {
+                return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
+            })
+            ->addColumn('title', function ($data) {
+                return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
+            })
+            ->addColumn('total_amount', function ($data) {
+                return number_format($data->total_amount, 2);
+            })
+            ->addColumn('status', function ($data) {
+                return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
+            })
+
+            ->addColumn('payment_status', function ($data) {
+                return '<span class="' . $data->getPaymentBadgeOption() . '">' . $data->getPayment() . '</span>';
+            })
+            ->rawColumns(['created_by'])
+
+            ->addColumn('created_at', function ($data) {
+                return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
+            })
+            ->addColumn('updated_at', function ($data) {
+                return (empty($data->updated_at)) ? 'N/A' : date('Y-m-d', strtotime($data->updated_at));
+            })
+            ->addColumn('action', function ($data) {
+                $html = '<div class="table-actions text-center">';
+                // $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('support/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('order/view/' . $data->id) . '"  ><i class="fa fa-eye
+                "data-toggle="tooltip"  title="View"></i></a>';
+                $html .=  '</div>';
+                return $html;
+            })->addColumn('customerClickAble', function ($data) {
+                $html = 0;
+
+                return $html;
+            })
+            ->rawColumns([
+                'action',
+                'created_at',
+                'status',
+                'payment_status',
+                'customerClickAble'
+            ]);
+        if (!($queryRelation instanceof \Illuminate\Database\Query\Builder)) {
+            $searchValue = $request->input('search.value');
+            if ($searchValue) {
+                $searchTerms = explode(' ', $searchValue);
+                $collection = $queryRelation->filter(function ($item) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        if (
+                            strpos($item->id, $term) !== false ||
+                            strpos($item->order_number, $term) !== false ||
+                            strpos($item->total_amount, $term) !== false ||
+                            strpos($item->created_at, $term) !== false ||
+                            (isset($item->createdBy) && strpos($item->createdBy->name, $term) !== false) ||
+                            $item->searchState($term)
+                        ) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+        }
+
+        return $dataTable->make(true);
     }
 }

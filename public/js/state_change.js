@@ -12,6 +12,13 @@ $(document).ready(function () {
         handleStateChange(this);
     });
 
+    $('.managePayment').click(function (e) {
+        e.preventDefault();
+        console.log('s');
+
+    });
+
+
     async function handleStateChange(element) {
         const unique_id = element.value;
         const model_id = $(element).data('id');
