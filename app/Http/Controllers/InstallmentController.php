@@ -127,7 +127,7 @@ class InstallmentController extends Controller
             $order = Order::find($request->order_id);
 
             if ($order->order_payment_status == 1) {
-                return response()->json(['message' => 'Paid Amount'], 400);
+                return response()->json(['message' => 'Already Paid Amount'], 400);
             }
             if ($order->remainingAmount() < $request->amount) {
                 return response()->json(['message' => 'Payment exceeds the remaining amount'], 400);

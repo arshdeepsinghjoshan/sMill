@@ -41,7 +41,6 @@ Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/registration', [AuthController::class, 'registration'])->name('add.registration');
 Route::get('/user/confirm-email/{activation_key?}', [UserController::class, 'confirmEmail']);
 Route::post('/user/confirm-email/{activation_key}', [UserController::class, 'EmailConfirm'])->name('confirm.email');
-Route::get('/generate-pdf', [UserController::class, 'generatePDF']);
 Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/user/list', [UserController::class, 'list']);
 
@@ -147,7 +146,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
 
 
-        Route::get('order', [OrderController::class, 'index']);
+        Route::get('order', [OrderController::class, 'index'])->name('order');
         Route::get('order/create', [OrderController::class, 'create']);
         Route::post('order/import', [OrderController::class, 'import'])->name('order.import');
         Route::post('order/add', [OrderController::class, 'add'])->name('order.add');
@@ -155,6 +154,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/order/edit/{id}', [OrderController::class, 'edit']);
         Route::get('/order/download/{id}', [OrderController::class, 'orderInvoice']);
         Route::get('/order/totat-sale', [OrderController::class, 'getSalesData'])->name('order.totatSale');
+        Route::get('/order/generate-pdf/{id}', [OrderController::class, 'generatePDF']);
 
         Route::get('/order/view/{id}', [OrderController::class, 'view']);
         Route::post('order/update', [OrderController::class, 'update'])->name('order.update');

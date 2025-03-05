@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use DataTables;
+use Illuminate\Support\Facades\Crypt;
 
 class Order extends Model
 {
@@ -82,7 +83,7 @@ class Order extends Model
         return $query->where(function ($query) use ($search, $stateOptions) {
             foreach ($stateOptions as $stateId => $stateName) {
                 if (stripos($stateName, $search) !== false) {
-                    $query->orWhere('status', $stateId);
+                    $query->orWhere('state_id', $stateId);
                 }
             }
         });
@@ -218,6 +219,13 @@ class Order extends Model
                     'label' => 'fa fa-credit-card',
                     'color' => 'btn btn-primary open-pending-payment-modal',
                     'title' => __('Order'),
+
+                ];
+                $menu['download-pdf'] = [
+                    'label' => 'fa fa-file-pdf',
+                    'color' => 'btn btn-primary',
+                    'title' => __('Order'),
+                    'url' => url('/order/generate-pdf/' . Crypt::encryptString($model->id)),
 
                 ];
 

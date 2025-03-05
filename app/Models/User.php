@@ -79,11 +79,10 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'user_id');
     }
 
-        public function pendingOrders()
-        {
-            return $this->hasMany(Order::class, 'user_id')->where('order_payment_status','!=', Order::STATE_COMPLETED)->sum('total_amount');
-        }
-
+    public function pendingOrders()
+    {
+        return $this->hasMany(Order::class, 'user_id')->where('order_payment_status', '!=', Order::STATE_COMPLETED)->sum('total_amount');
+    }
 
 
 
@@ -122,7 +121,7 @@ class User extends Authenticatable
             return $order->total_amount;
         });
 
-   
+
         return $totalSales;
         // return view('sales.todayProfit', compact('totalSales', 'totalProfit'));
     }

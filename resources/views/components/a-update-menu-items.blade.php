@@ -1,4 +1,4 @@
-<div class="mt-1">
+<div class="mt-2">
     <div class="text-right mb-2">
         @foreach ($model->updateMenuItems($action, $model) as $menu)
         @php

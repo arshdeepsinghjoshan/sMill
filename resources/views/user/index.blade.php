@@ -1,10 +1,6 @@
 @extends('layouts.master')
 @section('title', 'User Index')
-
 @section('content')
-
-
-
 <x-a-breadcrumb :columns="[
         [
             'url' => '/',
@@ -30,7 +26,7 @@
                                 'id',
                                 'name',
                                 'contact_no',
-                                'email',
+                                'father_name',
                                 'created_at',
                                 'status',
                                 'created_by',

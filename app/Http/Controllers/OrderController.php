@@ -17,10 +17,35 @@ use Illuminate\Validation\Rule;
 use PDF;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class OrderController extends Controller
 {
     public $setFilteredRecords = 0;
+
+    public function generatePDF(Request $request, $encodedId)
+    {
+        try {
+            $id = Crypt::decryptString($encodedId);
+        } catch (DecryptException $e) {
+            return redirect()->route('order')->with('error', 'Invalid request. Unable to decrypt the ID.');
+        } catch (\Exception $e) {
+            return redirect()->route('order')->with('error', 'An unexpected error occurred: ' . $e->getMessage());
+        }
+        $model = Order::find($id);
+        if (!$model) {
+            return redirect()->route('order')->with('error', 'Order not found.');
+        }
+        try {
+            // Generate the PDF
+            $pdf = PDF::loadView('pdf.order_invoice', compact('model'));
+            return $pdf->stream('invoice.pdf');
+        } catch (\Exception $e) {
+            return redirect()->route('order')->with('error', 'Failed to generate PDF: ' . $e->getMessage());
+        }
+    }
+
 
     public function index()
     {

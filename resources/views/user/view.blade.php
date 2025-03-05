@@ -49,6 +49,7 @@ use App\Models\User;
                                     'id',
                                     'email',
                                     'name',
+                                    'father_name',
                                     'address',
                                     [
                                         'attribute' => 'role_id',
@@ -59,13 +60,13 @@ use App\Models\User;
                                       [
                                         'attribute' => 'Pending_amount',
                                         'value' => number_format($model->pendingOrders(),2),
-                                        'visible' => true,
+                                        'visible' => false,
                                     ],
                                     [
                                         'attribute' => 'email_verified',
                                         'label' => 'Email Verified',
                                         'value' => $model->getEmail(),
-                                        'visible' => true,
+                                        'visible' => false,
                                     ],
                                     [
                                         'attribute' => 'created_at',
@@ -80,7 +81,7 @@ use App\Models\User;
                                         'value' => empty($model->updated_at)
                                             ? 'N/A'
                                             : date('Y-m-d h:i:s A', strtotime($model->updated_at)),
-                                        'visible' => $model->role_id != User::ROLE_ADMIN && $model->id != Auth::id(),
+                                        'visible' => false,
                                     ],
                                 
                                     [
@@ -89,7 +90,7 @@ use App\Models\User;
                                         'value' => !empty($model->createdBy && $model->createdBy->name)
                                             ? $model->createdBy->name
                                             : 'N/A',
-                                        'visible' => true,
+                                        'visible' => false,
                                     ],
                                 ]" />
                         </div>

@@ -40,6 +40,17 @@ use App\Models\User;
             <p style="color:red;">{{ $errors->first('contact_no') }}</p>
             @enderror
         </div>
+
+        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+            <div class="mb-3">
+                <label class="pt-2 fw-bold" for="btncheck1"> Father Name </label>
+                <input type="text" class="form-control d-block" name="father_name"
+                    value="{{ old('father_name', $model->father_name) }}">
+            </div>
+            @error('father_name')
+            <p style="color:red;">{{ $errors->first('father_name') }}</p>
+            @enderror
+        </div>
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3">
                 <label class="pt-2 fw-bold" for="btncheck1"> Email </label>

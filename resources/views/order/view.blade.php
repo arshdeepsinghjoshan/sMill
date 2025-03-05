@@ -24,7 +24,7 @@ use App\Models\User;
             <div class="card">
                 <div class="card-body">
                     <h5>{{ !empty($model->order_number) ? (strlen($model->order_number) > 100 ? substr($model->order_number, 0, 100) . '...' : $model->order_number) : 'N/A' }}
-                        <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span>
+                        <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span>   <span class="{{ $model->getPaymentBadgeOption() }}">{{ $model->getPayment() }}</span>
                     </h5>
 
                     <x-a-detail-view :model="$model" :column="
@@ -36,6 +36,9 @@ use App\Models\User;
         'value' =>  number_format($model->total_amount, 2),
         'visible'=> true   
      ],
+
+     
+     
        [
         'attribute' => 'pending_amount',
         'value' => $model->order_payment_status !=1 ? number_format($model->remainingAmount(), 2) : 0,

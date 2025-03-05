@@ -17,19 +17,7 @@ use Illuminate\Validation\Rule;
 use Barryvdh\DomPDF\Facade\Pdf;
 class UserController extends Controller
 {
-    public function generatePDF()
-    {
-        $data = [
-            'title' => 'Laravel PDF Example',
-            'date' => date('m/d/Y'),
-            'content' => 'This is a sample PDF generated using Laravel.'
-        ];
-
-        $pdf = Pdf::loadView('pdf.document', $data);
-
-        return $pdf->download('document.pdf'); // To download the file
-        // return $pdf->stream(); // To display in browser
-    }
+    
     public function index()
     {
         try {
@@ -292,8 +280,8 @@ class UserController extends Controller
             $q =  $request->search;
             $customer = User::where('name', 'LIKE', '%' . $q . '%')->orWhere('email', 'LIKE', '%' . $q . '%')
                 ->orWhere('id', 'LIKE', '%' . $q . '%')
-                ->orWhere('email', 'LIKE', '%' . $q . '%')
-                ->orWhere('referral_id', 'LIKE', '%' . $q . '%')
+                ->orWhere('father_name', 'LIKE', '%' . $q . '%')
+                ->orWhere('contact_no', 'LIKE', '%' . $q . '%')
                 ->first();
             if (!$customer)
                 return redirect('/dashboard')->with('error', 'User not found');
