@@ -41,12 +41,15 @@ Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/registration', [AuthController::class, 'registration'])->name('add.registration');
 Route::get('/user/confirm-email/{activation_key?}', [UserController::class, 'confirmEmail']);
 Route::post('/user/confirm-email/{activation_key}', [UserController::class, 'EmailConfirm'])->name('confirm.email');
-Route::group(['middleware' => 'prevent-back-history'], function () {
+Route::group(['middleware' => ['prevent-back-history']], function () {
+    Route::get('/logout', [UserController::class, 'logout'])->name('logout');
+});
+Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
+
     Route::get('/user/list', [UserController::class, 'list']);
 
     Route::group(['middleware' => ['auth', 'active']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/logout', [UserController::class, 'logout'])->name('logout');
         Route::get('/user/change-password', [UserController::class, 'changePassword']);
         Route::post('/user/update-password', [UserController::class, 'updatePassword'])->name('password.update');;
 
@@ -183,6 +186,5 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
 
         Route::post('installment/store', [InstallmentController::class, 'store']);
-
     });
 });

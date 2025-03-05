@@ -110,17 +110,11 @@ use App\Models\User;
                                 'created_by',
                                 'action',
                             ]" />
-
-
-
                         </div>
                     </div>
 
                      <div class="tab-pane fade " id="navs-justified-installments" role="tabpanel">
                         <div class="table-responsive">
-
-
-
                             <x-a-relation-grid :id="'installments_table'" :relation="'installments'" :model="$model" :columns="[
                                 'id',
                                 'amount',
@@ -128,9 +122,6 @@ use App\Models\User;
                                 'created_at',
                                 'action',
                             ]" />
-
-
-
                         </div>
                     </div>
 
@@ -193,5 +184,6 @@ use App\Models\User;
 
 
 </div>
+<script src="{{ asset('/js/cart.js') }}"></script>
 
 @endsection

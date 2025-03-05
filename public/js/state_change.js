@@ -16,49 +16,7 @@ $(document).ready(function () {
         e.preventDefault();
         $("#customerModal").modal("show");
     });
-    $('#add-pending-payment').click(function (e) {
-        e.preventDefault();
-
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        const form = $(this).closest('form'); // Get the closest form element
-        const url = '/installment/store'; // Get the form's action URL
-        const formData = new FormData(form[0]); // Collect form data
-        const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
-        formData.append('grindPrice', grindPrice ?? 2);
-        // Disable button and show a loader
-        const submitButton = $(this);
-        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Submitting...');
-
-        // Send AJAX request
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: formData,
-            processData: false, // Important for FormData
-            contentType: false, // Important for FormData
-            success: function (response) {
-                $('#pending_amount').val(response.remaining_amount); //
-                $('#paid_amount').val(response.paid_amount); //
-                $('#amount').val(''); //
-                handleResponse(response); // Handle success response
-            },
-            error: function (xhr) {
-                const error = xhr.responseJSON?.message || 'An error occurred!';
-                handleError(error); // Handle error response
-
-            },
-            complete: function () {
-                // Enable button and reset text
-                submitButton.prop('disabled', false).html('Add Payment');
-            }
-        });
-
-    });
-
+ 
 
     async function handleStateChange(element) {
         const unique_id = element.value;

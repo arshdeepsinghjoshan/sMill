@@ -422,6 +422,7 @@ class OrderController extends Controller
             $order = new Order();
             $order->created_by_id = $userId;
             $order->user_id = $userId;
+            $order->state_id = Order::STATE_PENDING;
             $order->total_amount = $totalPrice;
             $order->user_id = $buy_user_id;
             $order->generateOrderNumber();

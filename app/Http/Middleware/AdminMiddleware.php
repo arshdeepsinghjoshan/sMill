@@ -31,6 +31,7 @@ class AdminMiddleware
         if (User::isAdmin())
             return $next($request);
 
+
         redirect('/');
         abort(403, 'Your are not allowed to access this page.');
     }

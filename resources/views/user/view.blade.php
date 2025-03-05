@@ -42,14 +42,12 @@ use App\Models\User;
                             </div>
                         </div>
                         <div class="col-md-9 col-lg-10">
-
-
-
                             <x-a-detail-view :model="$model" :type="'double'" :column="[
                                     'id',
                                     'email',
                                     'name',
                                     'father_name',
+                                    'contact_no',
                                     'address',
                                     [
                                         'attribute' => 'role_id',
@@ -57,10 +55,11 @@ use App\Models\User;
                                         'value' => $model->getRole(),
                                         'visible' => true,
                                     ],
+                                    
                                       [
                                         'attribute' => 'Pending_amount',
-                                        'value' => number_format($model->pendingOrders(),2),
-                                        'visible' => false,
+                                        'value' => number_format($model->pendingPayment(),2),
+                                        'visible' => true,
                                     ],
                                     [
                                         'attribute' => 'email_verified',

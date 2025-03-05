@@ -90,7 +90,14 @@ class User extends Authenticatable
     {
         return $this->hasManyThrough(WalletTransaction::class, Wallet::class, 'created_by_id', 'wallet_id');
     }
-
+    public function pendingPayment()
+    {
+        return $this->pendingOrders() - $this->pendingInstallment()->sum('amount');
+    }
+    public function pendingInstallment()
+    {
+        return $this->hasManyThrough(Installment::class, Order::class, 'user_id', 'order_id')->where('orders.order_payment_status', '!=', 1);
+    }
     public function subscribedPlan()
     {
         return $this->hasMany(SubscribedPlan::class, 'created_by_id');
