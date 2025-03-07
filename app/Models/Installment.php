@@ -83,14 +83,14 @@ class Installment extends Model
                     'color' => 'btn btn-icon btn-warning',
                     'title' => __('Manage'),
                     'text' => false,
-                    'url' => url('wallet'),
+                    'url' => url('installment'),
 
                 ];
                 $menu['update'] = [
                     'label' => 'fa fa-edit',
                     'color' => 'btn btn-icon btn-warning',
                     'title' => __('Update'),
-                    'url' => url('wallet/edit/' . ($model->id ?? 0) . '/' . ($model->slug ?? '')),
+                    'url' => url('installment/edit/' . ($model->id ?? 0) . '/' . ($model->slug ?? '')),
                     'visible' => false
 
 
@@ -101,7 +101,7 @@ class Installment extends Model
                     'label' => 'fa fa-plus',
                     'color' => 'btn btn-icon btn-primary',
                     'title' => __('Add'),
-                    'url' => url('wallet/create'),
+                    'url' => url('installment/create'),
                     'visible' => false
                 ];
         }
@@ -136,7 +136,7 @@ class Installment extends Model
             ->addColumn('action', function ($data) {
                 $html = '<div class="table-actions text-center">';
                 // $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('wallet/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
-                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('wallet/view/' . $data->id) . '"  ><i class="fa fa-eye
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('installment/view/' . $data->id) . '"  ><i class="fa fa-eye
                 "data-toggle="tooltip"  title="View"></i></a>';
                 $html .=  '</div>';
                 return $html;

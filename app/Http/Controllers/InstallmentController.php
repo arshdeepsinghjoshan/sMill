@@ -23,15 +23,23 @@ class InstallmentController extends Controller
 {
     public $setFilteredRecords = 0;
 
-
+    public function index()
+    {
+        try {
+            $model = new Installment();
+            return view('installment.index', compact('model'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
 
 
     public function getList(Request $request, $id = null)
     {
         if (User::isUser()) {
-            $query = Order::my()->orderBy('id', 'desc');
+            $query = Installment::my()->with(['order', 'createdBy'])->orderBy('id', 'desc');
         } else {
-            $query = Order::orderBy('id', 'desc');
+            $query = Installment::with(['order', 'createdBy'])->orderBy('id', 'desc');
         }
 
         if (!empty($id))
@@ -43,6 +51,9 @@ class InstallmentController extends Controller
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
+            ->addColumn('order', function ($data) {
+                return !empty($data->order && $data->order->order_number) ? $data->order->order_number : 'N/A';
+            })
             ->addColumn('title', function ($data) {
                 return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
             })
@@ -51,9 +62,6 @@ class InstallmentController extends Controller
             })
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
-            })
-            ->addColumn('payment_status', function ($data) {
-                return '<span class="' . $data->getPaymentBadgeOption() . '">' . $data->getPayment() . '</span>';
             })
             ->rawColumns(['created_by'])
 
@@ -69,7 +77,7 @@ class InstallmentController extends Controller
             ->addColumn('action', function ($data) {
                 $html = '<div class="table-actions text-center">';
                 // $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('support/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
-                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('order/view/' . $data->id) . '"  ><i class="fa fa-eye
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('installment/view/' . $data->id) . '"  ><i class="fa fa-eye
                     "data-toggle="tooltip"  title="View"></i></a>';
                 $html .=  '</div>';
                 return $html;
@@ -93,8 +101,7 @@ class InstallmentController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                                ->orWhere('order_number', 'like', "%$term%")
-                                ->orWhere('total_amount', 'like', "%$term%")
+                                ->orWhere('amount', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
                                 // ->orWhereHas('getDepartment', function ($query) use ($term) {
                                 //     $query->where('title', 'like', "%$term%");
@@ -104,7 +111,9 @@ class InstallmentController extends Controller
                                 })
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
-                                });
+                                }) ->orWhereHas('order', function ($query) use ($term) {
+                                    $query->where('order_number', 'like', "%$term%");
+                                });;
                         }
                     });
                 }
@@ -157,7 +166,21 @@ class InstallmentController extends Controller
 
 
 
+    public function view(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $model  = Installment::find($id);
+            if ($model) {
 
+                return view('installment.view', compact('model'));
+            } else {
+                return redirect('/installment')->with('error', 'Product not found');
+            }
+        } catch (\Exception $e) {
+            return redirect('/installment')->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
 
     public function stateChange($id, $state)
     {
