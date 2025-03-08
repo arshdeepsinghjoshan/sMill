@@ -183,8 +183,10 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
 
         Route::post('cart/custom-product', [CartController::class, 'customProduct']);
 
-
-
         Route::post('installment/store', [InstallmentController::class, 'store']);
+        Route::get('installment', [InstallmentController::class, 'index']);
+        Route::get('installment/create', [InstallmentController::class, 'create']);
+        Route::get('/installment/get-list', [InstallmentController::class, 'getList']);
+        Route::get('/installment/view/{id}', [InstallmentController::class, 'view']);
     });
 });

@@ -20,7 +20,7 @@
                     style="vertical-align: top; padding: 10px; border-top: 1px solid #000; border-right: 0px; border-left: 1px solid #000;border-bottom: 1px solid #000;">
                     <!-- <img src="https://node.greenfinworld.com/invoice/Maxgrow-logo-1.jpg" alt="logo" -->
                     <!-- style="width: 70px; height: auto;"> -->
-                    <h2 style="color: #D04A02; margin: 3px 0; font-size: 10px;">Joshan atta chakki.</h2>
+                    <h2 style="color: #D04A02; margin: 3px 0; font-size: 10px;">Joshan Atta Chakki.</h2>
 
                     <p style="margin: 3px 0; font-size: 8px;">
                         Address: Village Lalouchhi<br>
