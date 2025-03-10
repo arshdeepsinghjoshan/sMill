@@ -50,21 +50,14 @@
         <!-- Invoice and Transport Info -->
         <table style="width: 100%; margin: 0 auto; border-collapse: collapse; margin-bottom: 0px; table-layout: fixed;">
             <tr style="border-top: none;">
-                <td
-                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">
-                    Reverse Charge:
-                </td>
-                <td
-                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    No
-                </td>
+
                 <td
                     style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">
                     Order No:
                 </td>
                 <td
                     style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{$model->order_number ?? 'N/A'}}
+                    {{ $model->order_number ?? 'N/A' }}
                 </td>
                 <td
                     style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">
@@ -72,45 +65,46 @@
                 </td>
                 <td
                     style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{ (empty($model->created_at)) ? 'N/A' : date('Y-m-d', strtotime($model->created_at))}}
+                    {{ empty($model->created_at) ? 'N/A' : date('Y-m-d', strtotime($model->created_at)) }}
+
+
+                </td>
+
+                <td
+                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">
+                    Last Update:
+                </td>
+                <td
+                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px;">
+                    {{ empty($model->updated_at) ? 'N/A' : date('Y-m-d', strtotime($model->updated_at)) }}
+
 
 
                 </td>
             </tr>
             <tr>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Last Update:</td>
+
+                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Invoice Dtae:
+                </td>
                 <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{ (empty($model->updated_at)) ? 'N/A' : date('Y-m-d', strtotime($model->updated_at))}}
+                    {{ empty(Now()) ? 'N/A' : date('Y-m-d h:i:s A', strtotime(Now())) }}
 
                 </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Phone No:</td>
+                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Order Status:
+                </td>
                 <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    sdfasd
+                    {{ $model->getState() ?? 'N/A' }}
+
                 </td>
                 <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Payment Status:
                 </td>
                 <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{$model->getPayment() ?? 'N/A'}}
+                    {{ $model->getPayment() ?? 'N/A' }}
 
                 </td>
             </tr>
 
-            <tr>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Invoice Date:
-                </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{ (empty($model->created_at)) ? 'N/A' : date('Y-m-d', strtotime($model->created_at))}}
 
-                </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Warehouse:</td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">In-House</td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Order Status:
-                </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{$model->getState() ?? 'N/A'}}
-
-                </td>
-            </tr>
 
         </table>
 
@@ -127,36 +121,38 @@
             <tr>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Name:</td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->name ?? 'N/A'}}
+                    {{ $model->createdBy->name ?? 'N/A' }}
 
                 </td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Name:</td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->name ?? 'N/A'}}
+                    {{ $model->createdBy->name ?? 'N/A' }}
 
                 </td>
             </tr>
             <tr class="">
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Email:</td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->email ?? 'N/A'}}
+                    {{ $model->createdBy->email ?? 'N/A' }}
                 </td>
                 <td
                     style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700; white-space: wrap;">
                     Email:</td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; white-space: wrap;">
-                    {{$model->createdBy->email ?? 'N/A'}}
+                    {{ $model->createdBy->email ?? 'N/A' }}
                 </td>
             </tr>
             <tr>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Father Name:</td>
+                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Father Name:
+                </td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->father_name ?? 'N/A'}}
+                    {{ $model->createdBy->father_name ?? 'N/A' }}
 
                 </td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Father Name:</td>
+                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Father Name:
+                </td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->father_name ?? 'N/A'}}
+                    {{ $model->createdBy->father_name ?? 'N/A' }}
 
                 </td>
             </tr>
@@ -164,24 +160,24 @@
             <tr>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Contact No:</td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->contact_no ?? 'N/A'}}
+                    {{ $model->createdBy->contact_no ?? 'N/A' }}
 
                 </td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Contact No:</td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->contact_no ?? 'N/A'}}
+                    {{ $model->createdBy->contact_no ?? 'N/A' }}
 
                 </td>
             </tr>
             <tr>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Address:</td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->address ?? 'N/A'}}
+                    {{ $model->createdBy->address ?? 'N/A' }}
 
                 </td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Address:</td>
                 <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{$model->createdBy->address ?? 'N/A'}}
+                    {{ $model->createdBy->address ?? 'N/A' }}
 
                 </td>
             </tr>
@@ -195,7 +191,8 @@
                         Name</th>
                     <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
                         Description</th>
-                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">Unit Amount</th>
+                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">Unit Amount
+                    </th>
                     <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">Total Amount
                     </th>
                     <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">QTY</th>
@@ -204,32 +201,32 @@
             </thead>
             <tbody>
                 @foreach ($model->items as $orderItem)
-                <tr style="border: 1px solid black;">
-                    <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                        {{json_decode($orderItem->product_json,true)['name'] ?? 'N/A'}}
-                    </td>
+                    <tr style="border: 1px solid black;">
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ json_decode($orderItem->product_json, true)['name'] ?? 'N/A' }}
+                        </td>
 
-                    <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                        {{json_decode($orderItem->product_json,true)['description'] ?? 'N/A'}}
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ json_decode($orderItem->product_json, true)['description'] ?? 'N/A' }}
 
-                    </td>
+                        </td>
 
-                    <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                        {{number_format($orderItem->unit_amount,2) ?? 'N/A'}}
-                    </td>
-                    <!-- Replace with dynamic code if available -->
-                    <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                        {{number_format($orderItem->total_amount,2) ?? 'N/A'}}
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ number_format($orderItem->unit_amount, 2) ?? 'N/A' }}
+                        </td>
+                        <!-- Replace with dynamic code if available -->
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ number_format($orderItem->total_amount, 2) ?? 'N/A' }}
 
-                    </td>
-
-
-                    <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                        {{$orderItem->quantity ?? 'N/A'}}
-                    </td>
+                        </td>
 
 
-                </tr>
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ $orderItem->quantity ?? 'N/A' }}
+                        </td>
+
+
+                    </tr>
                 @endforeach
             </tbody>
         </table>
@@ -237,8 +234,7 @@
         <table style="width: 100%; margin: 0 auto; border-collapse: collapse; ">
             <!-- First Row with 2 Columns -->
             <!-- <thead> -->
-            <th colspan="2"
-                style="text-align: right; font-size: 8px; padding: 4px 5px;">
+            <th colspan="2" style="text-align: right; font-size: 8px; padding: 4px 5px;">
                 Order Installments:</th>
 
             <!-- Subsequent Rows with 4 Columns -->
@@ -253,23 +249,23 @@
             <!-- </thead> -->
             <!-- <tbody> -->
             @foreach ($model->installments as $installment)
-            <tr style="border: 1px solid black;">
+                <tr style="border: 1px solid black;">
 
-                <!-- Replace with dynamic code if available -->
-                <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                    {{number_format($installment->amount,2) ?? 'N/A'}}
-                </td>
+                    <!-- Replace with dynamic code if available -->
+                    <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                        {{ number_format($installment->amount, 2) ?? 'N/A' }}
+                    </td>
 
-                <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                    {{ (empty($installment->created_at)) ? 'N/A' : date('Y-m-d', strtotime($installment->created_at))}}
-                </td>
+                    <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                        {{ empty($installment->created_at) ? 'N/A' : date('Y-m-d', strtotime($installment->created_at)) }}
+                    </td>
 
-                <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                    {{ (empty($installment->updated_at)) ? 'N/A' : date('Y-m-d', strtotime($installment->updated_at))}}
-                </td>
+                    <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                        {{ empty($installment->updated_at) ? 'N/A' : date('Y-m-d', strtotime($installment->updated_at)) }}
+                    </td>
 
 
-            </tr>
+                </tr>
             @endforeach
             <!-- </tbody> -->
         </table>
@@ -289,14 +285,15 @@
 
             <th colspan="3"
                 style="border-left: 1px solid #000; border-right: 1px solid #000; text-align: right; font-size: 8px; padding: 4px 5px;">
-                Total Amount: {{number_format($model->total_amount,2) ?? 'N/A'}}</th>
+                Total Amount: {{ number_format($model->total_amount, 2) ?? 'N/A' }}</th>
 
         </table>
         <table style="width: 100%; margin: 0 auto; border-collapse: collapse; ">
 
             <th colspan="3"
                 style="border-left: 1px solid #000; border-right: 1px solid #000; text-align: right; font-size: 8px; padding: 4px 5px;">
-                Pending Amount: {{$model->order_payment_status !=1 ? number_format($model->remainingAmount(), 2) : 0}}</th>
+                Pending Amount:
+                {{ $model->order_payment_status != 1 ? number_format($model->remainingAmount(), 2) : 0 }}</th>
 
             <!-- Subsequent Rows with 4 Columns -->
 
@@ -308,7 +305,9 @@
 
             <th colspan="3"
                 style="border-left: 1px solid #000; border-right: 1px solid #000; text-align: right; font-size: 8px; padding: 4px 5px;">
-                Paid Amount: {{$model->order_payment_status ==1 ? number_format($model->total_amount, 2) : number_format($model->paidAmount(), 2)}}</th>
+                Paid Amount:
+                {{ $model->order_payment_status == 1 ? number_format($model->total_amount, 2) : number_format($model->paidAmount(), 2) }}
+            </th>
 
             <!-- Subsequent Rows with 4 Columns -->
 
