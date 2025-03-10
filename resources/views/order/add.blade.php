@@ -34,7 +34,7 @@
                 <div class="card-body">
                     <div class="table-responsive">
 
-                        <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list'" :columns="['select', 'name','price','remaining_quantity']" />
+                        <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list?state_id=1'" :columns="['select', 'name','price','remaining_quantity']" />
                     </div>
                 </div>
             </div>

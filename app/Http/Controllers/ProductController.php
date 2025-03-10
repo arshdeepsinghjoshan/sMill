@@ -203,6 +203,11 @@ class ProductController extends Controller
         if (!empty($id))
             $query->where('id', $id);
 
+        $state_id = request('state_id');
+        if ($state_id) {
+            $query->where('state_id', $state_id);
+        }
+
         return Datatables::of($query)
             ->addIndexColumn()
             ->addColumn('select', function ($data) {
@@ -225,6 +230,14 @@ class ProductController extends Controller
 
             ->addColumn('created_at', function ($data) {
                 return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
+            })
+            ->addColumn('status', function ($data) {
+                $select = '<select class="form-select state-change"  data-id="' . $data->id . '" data-modeltype="' . Product::class . '" aria-label="Default select example">';
+                foreach ($data->getStateOptions() as $key => $option) {
+                    $select .= '<option value="' . $key . '"' . ($data->state_id == $key ? ' selected' : '') . '>' . $option . '</option>';
+                }
+                $select .= '</select>';
+                return $select;
             })
 
             ->addColumn('action', function ($data) {
@@ -249,14 +262,16 @@ class ProductController extends Controller
 
             ->filter(function ($query) {
                 if (!empty(request('search')['value'])) {
+
                     $searchValue = request('search')['value'];
                     $searchTerms = explode(' ', $searchValue);
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
                                 ->orWhere('name', 'like', "%$term%")
-                                ->orWhere('description', 'like', "%$term%")
                                 ->orWhere('price', 'like', "%$term%")
+                                ->orWhere('quantity_in_stock', 'like', "%$term%")
+                                ->orWhere('remaining_quantity', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
