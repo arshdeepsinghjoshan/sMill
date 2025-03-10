@@ -23,8 +23,8 @@ return new class extends Migration
             $table->integer('state_id')->default(1);
             $table->integer('order_status')->default(0);
             $table->integer('product_id')->default(0);
-            $table->integer('quantity')->nullable();
-            $table->integer('unit_quantity')->nullable();
+            $table->decimal('quantity', 10, 2)->nullable(); 
+            $table->decimal('unit_quantity', 10, 2)->nullable(); 
             $table->integer('warehouse_id')->nullable();
             $table->decimal('total_amount', 20, 6)->unsigned()->default(0);
             $table->decimal('unit_amount', 20, 6)->unsigned()->default(0);

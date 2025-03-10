@@ -54,12 +54,8 @@
                                 'id',
                                  'name',
                                  'price',
-                                [
-                                 'attribute'=> 'description',
-                                 'label'=>'Desc'
-                                ],
-                               
-                               
+                                 'quantity_in_stock',
+                                 'remaining_quantity',
                                 [
                                  'attribute'=> 'created_at',
                                  'label'=>'CDate'

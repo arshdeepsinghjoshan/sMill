@@ -28,26 +28,6 @@ $segment2 = request()->segment(2);
             </a>
         </li>
 
-        <!-- User Managment -->
-        <li class="menu-item {{ $segment1 != 'user' ? '' : 'active open' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-layout"></i>
-                <div data-i18n="Layouts">User Management</div>
-            </a>
-
-            <ul class="menu-sub">
-                <li class="menu-item {{ $segment1 != 'user' ? '' : 'active' }}">
-                    <a href="{{ url('user') }}" class="menu-link">
-                        <div data-i18n="Without menu">Users</div>
-                    </a>
-                </li>
-
-
-            </ul>
-        </li>
-        <!--End User Managment -->
-
-
 
         @if (User::isAdmin())
         <!--Wallet Managment -->
@@ -98,16 +78,19 @@ $segment2 = request()->segment(2);
         </li>
         @endif
 
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Product Management</span></li>
-        @if (User::isAdmin())
-        <!-- Product Managment -->
-        <li class="menu-item {{ $segment1 == 'product' && $segment2 == 'category' ? 'active' : '' }}">
-            <a href="{{ url('product/category') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-collection"></i>
-                <div data-i18n="Basic">Category</div>
+
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Customer Management</span></li>
+        <li class="menu-item {{ $segment1 != 'user' ? '' : 'active' }}">
+            <a href="{{ url('user') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-user"></i>
+                <div data-i18n="Basic">Customer </div>
             </a>
         </li>
-        @endif
+
+
+
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Product Management</span></li>
+    
         <li class="menu-item {{ $segment1 == 'product' && $segment2 != 'category' ? 'active' : '' }}">
             <a href="{{ url('product') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-file"></i>
@@ -127,10 +110,10 @@ $segment2 = request()->segment(2);
         @endif
         
 
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Support Management</span></li>
-        @if (User::isAdmin())
+        <!-- <li class="menu-header small text-uppercase"><span class="menu-header-text">Support Management</span></li> -->
+        <!-- @if (User::isAdmin()) -->
         <!-- Support Managment -->
-        <li class="menu-item {{ $segment1 == 'support' && $segment2 == 'department' ? 'active' : '' }}">
+        <!-- <li class="menu-item {{ $segment1 == 'support' && $segment2 == 'department' ? 'active' : '' }}">
             <a href="{{ url('support/department') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-collection"></i>
                 <div data-i18n="Basic">Department</div>
@@ -142,7 +125,7 @@ $segment2 = request()->segment(2);
                 <i class="menu-icon tf-icons bx bx-file"></i>
                 <div data-i18n="Basic">Supports</div>
             </a>
-        </li>
+        </li> -->
 
         <!--End Support Managment -->
 

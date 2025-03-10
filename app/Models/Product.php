@@ -38,6 +38,20 @@ class Product extends Model
         ];
     }
 
+
+    /**
+     * Automatically update remaining_quantity when quantity_in_stock changes
+     */
+    public function setQuantityInStockAttribute($value)
+    {
+        // If it's a new record, set remaining_quantity equal to quantity_in_stock
+        
+            $this->attributes['remaining_quantity'] = $value;
+        
+        
+        // Set quantity_in_stock
+        $this->attributes['quantity_in_stock'] = $value;
+    }
     public static function getTypeOptions()
     {
         return [
@@ -132,6 +146,13 @@ class Product extends Model
                     'color' => 'btn btn-primary',
                     'title' => __('Manage'),
                     'url' => url('product'),
+
+                ];
+                $menu['update'] = [
+                    'label' => 'fa fa-edit',
+                    'color' => 'btn btn-primary',
+                    'title' => __('Update'),
+                    'url' => url('product/edit/' . $model->id),
 
                 ];
                 break;

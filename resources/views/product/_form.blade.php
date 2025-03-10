@@ -1,4 +1,4 @@
-<form action="{{ route('product.add') }}" method="post" id="product-update" enctype="multipart/form-data">
+<form action="{{ route(empty($model->exists) ? 'product.add' : 'product.update', $model->id) }}" method="post" id="product-update" enctype="multipart/form-data">
     @csrf
     <div class="row align-items-starts">
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -11,20 +11,7 @@
             @enderror
         </div>
 
-        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-            <div class="mb-3 required">
-                <label class="pt-2 fw-bold" for="btncheck1"> Category </label>
-                <select name="category_id" class="validate form-control" id="category_id">
-                    @foreach($model->getCategoryOption() as $category)
-                    <option value="{{$category->id}}" {{$category->id == $model->category_id ? 'selected' : ''}}>{{$category->name}}</option>
-                    @endforeach
-
-                </select>
-            </div>
-            @error("category_id")
-            <p style="color:red;">{{ $errors->first("category_id")}}</p>
-            @enderror
-        </div>
+      
 
        
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -50,16 +37,7 @@
         <input type="hidden" name="id" id="id" value="{{ $model->id }}" required />
 
 
-        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-            <div class="mb-3 required">
-                <label class="pt-2 fw-bold" for="btncheck1">Description</label>
-                <textarea rows="1" name="description" id="description" class="validate form-control">{{$model->description}} </textarea>
-            </div>
-            @error("description")
-            <p style="color:red;">{{ $errors->first("description")}}</p>
-            @enderror
-        </div>
-        
+      
        
       
         

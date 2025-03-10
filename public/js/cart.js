@@ -115,7 +115,7 @@
                     cartid: cartid,
                     grindPrice: grindPrice,
                 },
-                reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
+                reloadTable: ['#cart_list', '#cart_checkout']
             });
 
         }, 500); // Delay of 500ms to debounce
@@ -153,7 +153,7 @@
                 type_id: type_id,
                 cartid: cartid,
                 grindPrice: grindPrice,
-            }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
+            }, reloadTable: ['#cart_list', '#cart_checkout']
         })
     });
     $(document).on('click', '#submit-button', function (e) {
