@@ -25,14 +25,13 @@ use App\Models\User;
                         <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span>
                     </h5>
 
-                    <x-a-detail-view :model="$model" :type="'double'" :column="
+                    <x-a-detail-view :model="$model" :type="'single'" :column="
     [
         'id',
       'name',
-      'product_code',
-      'description',
       'price',
-      'distribution_price',
+      'quantity_in_stock',
+      'remaining_quantity',
      [
         'attribute' => 'created_at',
         'label' => 'Created at',

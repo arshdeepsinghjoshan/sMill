@@ -392,14 +392,15 @@ class OrderController extends Controller
     {
         $buy_user_id = $request->user_id;
         $validator = $this->orderPlaceValidator($request->all());
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 422,
                 'message' => $validator->messages()->first(),
             ]);
         }
+
         try {
-            // Get the authenticated user ID
             $userId = Auth::id();
             DB::beginTransaction();
 
@@ -413,7 +414,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            // Calculate the total order price
+            // Calculate total order price
             $totalPrice = $cartItems->sum(function ($item) {
                 return $item->quantity * $item->unit_price;
             });
@@ -421,16 +422,16 @@ class OrderController extends Controller
             // Create a new order
             $order = new Order();
             $order->created_by_id = $userId;
-            $order->user_id = $userId;
+            $order->user_id = $buy_user_id;
             $order->state_id = Order::STATE_PENDING;
             $order->total_amount = $totalPrice;
-            $order->user_id = $buy_user_id;
+            $order->created_by_id = $userId;
             $order->generateOrderNumber();
+
             if ($order->save()) {
-                // Associate cart items with the newly created order
                 foreach ($cartItems as $cartItem) {
-                    // dd($cartItem);
                     $product = Product::find($cartItem->product_id);
+
                     if (!$product) {
                         if (!$cartItem->custom_product) {
                             DB::rollBack();
@@ -439,9 +440,24 @@ class OrderController extends Controller
                                 'message' => 'Product not found for cart item!',
                             ]);
                         } else {
-                            $product['name'] =  $cartItem->custom_product;
+                            $product = new Product();
+                            $product->name = $cartItem->custom_product;
                         }
                     }
+                    if ($cartItem->product_id != 0) {
+                        // Check if there is enough stock before placing the order
+                        if ($product->remaining_quantity < $cartItem->quantity) {
+                            DB::rollBack();
+                            return response()->json([
+                                'status' => 422,
+                                'message' => 'Insufficient stock for product: ' . $product->name,
+                            ]);
+                        }
+
+                        // Reduce stock quantity
+                        $product->decrement('remaining_quantity', $cartItem->quantity);
+                    }
+                    // Create order item
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $cartItem->product_id ?? 0,
@@ -457,6 +473,7 @@ class OrderController extends Controller
                 // Clear the user's cart
                 Cart::where('created_by_id', $userId)->delete();
                 DB::commit();
+
                 return response()->json([
                     'status' => 200,
                     'message' => 'Order placed successfully!',
@@ -477,6 +494,7 @@ class OrderController extends Controller
             ]);
         }
     }
+
 
 
 

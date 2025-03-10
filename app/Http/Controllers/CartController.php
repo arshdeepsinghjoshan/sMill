@@ -98,13 +98,21 @@ class CartController extends Controller
                     'message' => 'Product not found in the cart.',
                 ]);
             }
-
-
-
+            if ($cartItem->product_id != 0) {
+                $productCheck = Product::find($cartItem->product_id);
+                if (!$productCheck) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => 'Product not found.',
+                    ]);
+                }
+            }
             // Determine the new quantity
-            $quantity = $cartItem->quantity;
+            $quantity = (int) $cartItem->quantity;
+
+
             if ($request->type_id == "1") {
-                if ($quantity >= 20) {
+                if ($quantity >= 100) {
                     return response()->json([
                         'status' => 422,
                         'message' => "We're sorry! Only 20 unit(s) allowed in each order.",
@@ -127,6 +135,15 @@ class CartController extends Controller
                 $totalPrice = $cartItem->unit_price * $quantity;
             }
             // Update the cart item
+            if ($cartItem->product_id != 0) {
+
+                if ($productCheck->remaining_quantity < $quantity) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => 'Insufficient stock for product: ' . $productCheck->name,
+                    ]);
+                }
+            }
             $cartItem->update([
                 'quantity' => $quantity,
                 'total_price' => $totalPrice,
@@ -171,6 +188,7 @@ class CartController extends Controller
                     'message' => $validator->messages()->first(),
                 ]);
             }
+            $quantity = (float) $request->quantity;
 
             if ($request->product_id == 0) {
                 $cartItem = Cart::where('id', $request->cartid)->first();
@@ -184,6 +202,12 @@ class CartController extends Controller
                         'message' => 'Product not found.',
                     ]);
                 }
+                if ($product->remaining_quantity < $quantity) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => 'Insufficient stock for product: ' . $product->name,
+                    ]);
+                }
             }
 
             if (!$cartItem) {
@@ -195,8 +219,6 @@ class CartController extends Controller
 
 
             // Determine the new quantity
-            $quantity = (float) $request->quantity;
-
 
             // dd($quantity);
             if ($quantity >= 100) {
@@ -212,8 +234,8 @@ class CartController extends Controller
             } else {
                 $totalPrice = $cartItem->unit_price * $quantity;
             }
-            // dd($totalPrice, $quantity);
-            // Update the cart item
+
+
             $cartItem->update([
                 'quantity' => $quantity,
                 'total_price' => $totalPrice,
@@ -447,9 +469,9 @@ class CartController extends Controller
         return Datatables::of($query)
             ->addIndexColumn()
             ->addColumn('select', function ($data) {
-                if($data->type_id!=1){
+                if ($data->type_id != 1) {
 
-                return '
+                    return '
                 <!-- Quantity -->
                 <div class="d-flex " style="max-width: 300px">
                   <button data-cartid=\'' . $data->id . '\' 
@@ -471,8 +493,7 @@ class CartController extends Controller
                   </button>
                 </div>
             ';
-                }
-                else{
+                } else {
                     return '  
                           <div class="d-flex " style="max-width: 300px">
                   <button
@@ -490,17 +511,16 @@ class CartController extends Controller
                  --
                   </button>
                 </div>';
-
                 }
             })
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
             ->addColumn('close', function ($data) {
-             
-                if($data->type_id!=1){
-             
-                return '
+
+                if ($data->type_id != 1) {
+
+                    return '
                   <button data-cartid=\'' . $data->id . '\'  data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
                     class="btn btn-link px-2 deleteCartItem" 
                     >
@@ -508,8 +528,7 @@ class CartController extends Controller
                   </button>
                 </div>
             ';
-                }
-                else{
+                } else {
                     return '----';
                 }
             })
@@ -748,7 +767,7 @@ class CartController extends Controller
             $model->total_price = $totalQuantity * $price;
             $model->created_by_id = Auth::id();
             $model->unit_price = $price;
-            $model->custom_product = 'Grind';
+            $model->custom_product = 'Pisai';
 
             $model->save();
         } else {
@@ -764,7 +783,7 @@ class CartController extends Controller
                     'quantity' => $totalQuantity,
                     'total_price' => $totalQuantity * $price,
                     'unit_price' => $price,
-                    'custom_product' => 'Grind',
+                    'custom_product' => 'Pisai',
                     'created_by_id' => Auth::id(),
                 ]);
             }
@@ -810,7 +829,7 @@ class CartController extends Controller
 
             // Save cart entry
             if ($cart->save()) {
-            self::addOrUpdateGrindPrice($request->grindPrice);
+                self::addOrUpdateGrindPrice($request->grindPrice);
                 return response()->json([
                     'status' => 200,
                     'message' => 'Product added to cart successfully!',

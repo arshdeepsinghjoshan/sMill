@@ -33,7 +33,8 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list'" :columns="['select', 'name', 'description','price']" />
+
+                        <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list'" :columns="['select', 'name','price','remaining_quantity']" />
                     </div>
                 </div>
             </div>
@@ -157,7 +158,11 @@
                                     <input type="text" id="search_name_phone_number" autocomplete="off" name="search_name_phone_number" class="form-control" placeholder="Harry & 954789" />
                                 </div>
                             </div>
-
+                            <div class="text-right">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            </div>
                             <div class="text-center"><b>OR</b></div>
                             <div class="row g-2 mt-2">
                                 <div class="col mb-0">
