@@ -56,6 +56,7 @@
                                  'price',
                                  'quantity_in_stock',
                                  'remaining_quantity',
+                                 'status',
                                 [
                                  'attribute'=> 'created_at',
                                  'label'=>'CDate'
