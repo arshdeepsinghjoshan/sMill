@@ -54,7 +54,15 @@ class Log extends Model
             self::STATE_DELETED => "Deleted"
         ];
     }
-
+    public function getStateBadgeOption()
+    {
+        $list = [
+            self::STATE_ACTIVE => "success",
+            self::STATE_INACTIVE => "secondary",
+            self::STATE_DELETED => "danger",
+        ];
+        return isset($list[$this->state_id]) ? 'badge bg-' . $list[$this->state_id] : 'Not Defined';
+    }
     public function getState()
     {
         $list = self::getStateOptions();
@@ -96,8 +104,8 @@ class Log extends Model
         switch ($action) {
             case 'view':
                 $menu['manage'] = [
-                    'label' => 'ri-arrow-go-back-fill',
-                    'color' => 'btn btn-warning',
+                    'label' => 'fa fa-step-backward',
+                    'color' => 'btn btn-icon btn-warning',
                     'title' => __('Manage'),
                     'url' => url('log'),
 

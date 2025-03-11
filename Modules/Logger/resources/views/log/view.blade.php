@@ -18,10 +18,10 @@ use App\Models\User;
             'label' => 'Home',
         ],
         [
-            'url' => 'user',
-            'label' => 'Users',
+            'url' => 'log',
+            'label' => 'Logs',
         ],
-        $model->name,
+       !empty($model->message ) ? (strlen($model->message ) > 100 ? substr($model->message , 0, 100) . '...' : $model->message ) : 'N/A' ,
     ]" />
 
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -29,43 +29,27 @@ use App\Models\User;
         <div class="col-lg-12 mb-4 order-0">
             <div class="card">
                 <div class="card-body">
-                    <h5>{{ !empty($model->name) ? (strlen($model->name) > 100 ? substr($model->name, 0, 100) . '...' : $model->name) : 'N/A' }}
+                    <h5>{{ !empty($model->message ) ? (strlen($model->message ) > 100 ? substr($model->message , 0, 100) . '...' : $model->message ) : 'N/A' }}
                         <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span>
                     </h5>
                     <div class="row">
 
-                        <div class="col-md-3 col-lg-2">
-                            <div class="admin-blog-image mt-5">
-
-                                <img src="{{ asset($model->profile_image ? '/uploads/' . $model->profile_image : '/assets/img/avatars/1.png') }}" alt="Profile" class="grid-image">
-
-                            </div>
-                        </div>
-                        <div class="col-md-9 col-lg-10">
-                            <x-a-detail-view :model="$model" :type="'double'" :column="[
+                        <div class="col-md-12 col-lg-12">
+                            <x-a-detail-view :model="$model" :type="'single'" :column="[
                                     'id',
-                                    'email',
-                                    'name',
-                                    'father_name',
-                                    'contact_no',
-                                    'address',
+                                    'message',
+                                    'user_agent',
+                                    'level_name',
+                                    'link',
+                                    'channel',
+                                
                                     [
-                                        'attribute' => 'role_id',
-                                        'label' => 'Role',
-                                        'value' => $model->getRole(),
+                                        'attribute' => 'updated_at',
+                                        'label' => 'Updated at',
+                                        'value' => empty($model->updated_at)
+                                            ? 'N/A'
+                                            : date('Y-m-d h:i:s A', strtotime($model->updated_at)),
                                         'visible' => true,
-                                    ],
-                                    
-                                      [
-                                        'attribute' => 'Pending_amount',
-                                        'value' => number_format($model->pendingPayment(),2),
-                                        'visible' => true,
-                                    ],
-                                    [
-                                        'attribute' => 'email_verified',
-                                        'label' => 'Email Verified',
-                                        'value' => $model->getEmail(),
-                                        'visible' => false,
                                     ],
                                     [
                                         'attribute' => 'created_at',
@@ -75,23 +59,15 @@ use App\Models\User;
                                             : date('Y-m-d h:i:s A', strtotime($model->created_at)),
                                     ],
                                     [
-                                        'attribute' => 'updated_at',
-                                        'label' => 'Updated at',
-                                        'value' => empty($model->updated_at)
-                                            ? 'N/A'
-                                            : date('Y-m-d h:i:s A', strtotime($model->updated_at)),
-                                        'visible' => false,
-                                    ],
-                                
-                                    [
                                         'attribute' => 'created_by_id',
                                         'label' => 'Created By',
                                         'value' => !empty($model->createdBy && $model->createdBy->name)
                                             ? $model->createdBy->name
                                             : 'N/A',
-                                        'visible' => false,
                                     ],
                                 ]" />
+                                 <h5 class="mt-2">Context</h5>
+                                <p>{{ !empty($model->context) ? $model->context : 'N/A' }}</p>
                         </div>
                     </div>
 
@@ -101,76 +77,6 @@ use App\Models\User;
     </div>
 
 
-    @if ($model->role_id != User::ROLE_ADMIN && $model->id != Auth::id())
-    <x-a-user-action :model="$model" attribute="state_id" :states="$model->getStateOptions()" />
-    @endif
 
-
-    <!-- <div class="card m"> -->
-    <div class="row mt-4">
-
-        <div class="col-xl-12">
-            <div class="nav-align-top ">
-                <ul class="nav nav-tabs nav-fill" role="tablist">
-
-                    <li class="nav-item">
-                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-order" aria-controls="navs-justified-messages" aria-selected="false">
-                            <i class="tf-icons bx bx-message-square"></i> Orders
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-wallet-history" aria-controls="navs-justified-messages" aria-selected="false">
-                            <i class="tf-icons bx bx-message-square"></i> Wallet Transaction
-                        </button>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane show active" id="navs-justified-order" role="tabpanel">
-                        <div class="table-responsive">
-
-
-
-                            <x-a-relation-grid :id="'order_table'" :relation="'orders'" :model="$model" :columns=" [
-                            'id',
-                            'order_number',
-                            'total_amount',
-                            'created_at',
-                            'updated_at',
-                            'status',
-                            'payment_status',
-                            'created_by',
-                            'action',
-                            ]" />
-
-
-
-
-                        </div>
-                    </div>
-
-
-                    <div class="tab-pane fade" id="navs-justified-wallet-history" role="tabpanel">
-                        <div class="table-responsive">
-                            <x-a-relation-grid :id="'wallet_transaction_table'" :relation="'transactions'" :model="$model" :columns="[
-                                        'id',
-                                        'wallet_number',
-                                        'amount',
-                                        'type_id',
-                                        'transaction_type',
-                                        'status',
-                                        'created_at',
-                                        'created_by',
-                                        'action',
-                                    ]" />
-
-                        </div>
-
-
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection

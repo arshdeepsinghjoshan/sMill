@@ -37,6 +37,7 @@ class LogController extends Controller
             $model = new Log();
             return view('logger::log.index', compact('model'));
         } catch (\Exception $e) {
+            dd('s');
             return redirect('/')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
@@ -87,7 +88,7 @@ class LogController extends Controller
                             ->orWhere('level', 'like', "%$searchValue%")
                             ->orWhere('created_at', 'like', "%$searchValue%")
                             ->orWhereHas('createdBy', function ($query) use ($searchValue) {
-                                $query->where('full_name', 'like', "%$searchValue%");
+                                $query->where('name', 'like', "%$searchValue%");
                             })
                             ->orWhere(function ($query) use ($searchValue) {
                                 $query->searchState($searchValue);

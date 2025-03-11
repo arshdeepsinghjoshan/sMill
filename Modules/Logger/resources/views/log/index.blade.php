@@ -7,8 +7,8 @@
             'label' => 'Home',
         ],
         [
-            'url' => 'user',
-            'label' => 'Users',
+             'url' => 'log',
+            'label' => 'Logs',
         ],
     ]" />
 
