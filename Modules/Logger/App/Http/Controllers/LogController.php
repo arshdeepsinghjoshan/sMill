@@ -11,7 +11,7 @@
  *
  */
 
- namespace Modules\Logger\App\Http\Controllers;
+namespace Modules\Logger\App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Contracts\Support\Renderable;
@@ -37,7 +37,6 @@ class LogController extends Controller
             $model = new Log();
             return view('logger::log.index', compact('model'));
         } catch (\Exception $e) {
-            dd('s');
             return redirect('/')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
@@ -65,12 +64,11 @@ class LogController extends Controller
             })
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
-
             })
             ->addColumn('action', function ($data) {
                 $html =    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('log/view/' . $data->id) . '"  ><i class="fa fa-eye
                 "data-toggle="tooltip"  title="View"></i></a>';
-            $html .=  '</div>';
+                $html .=  '</div>';
                 return $html;
             })->addColumn('customerClickAble', function ($data) {
                 $html = 0;
