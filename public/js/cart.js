@@ -247,29 +247,27 @@
         ])
     });
     $(document).on('click', '.select-product', function (e) {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
+        // e.preventDefault();
+    
+        const productId = $(this).data('product_id'); 
+        const grindPrice = $('#grindPrice').val(); 
+        const isChecked = $(this).is(':checked');
+        let type_id = isChecked ? '1' : '0';
+    
+        let $checkbox = $(this);
+        $checkbox.prop('disabled', true); // Disable checkbox during API request
+    
+        sendAjaxRequest({
+            url: '/cart/add',
+            data: { product_id: productId, type_id: type_id, grindPrice: grindPrice ?? 2 },
+            reloadTable: ['#cart_list', '#cart_checkout']
+        }).then(() => {
+            $checkbox.prop('disabled', false); // Re-enable on success
+        }).catch(() => {
+            $checkbox.prop('disabled', false); // Re-enable on error
         });
-        e.preventDefault();
-        const productId = $(this).data('product_id'); // Get the product ID from the data attribute
-        const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
-        const isChecked = $(this).is(':checked')
-        this.disabled = true;
-        let type_id = ''; // Declared as const
-        if (isChecked) {
-            type_id = '1'; // Trying to reassign a const variable
-        } else {
-            type_id = '0'; // Trying to reassign a const variable
-        }
-
-        sendAjaxRequest({ url: '/cart/add', data: { product_id: productId, type_id: type_id, grindPrice: grindPrice ?? 2 }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table'] })
-
-
-
-
     });
+    
     function handleResponse(response) {
         var toastG = document.getElementById('toastG');
         var toastBody = toastG.querySelector('.toast-body');
@@ -306,21 +304,23 @@
         });
 
         const isFormData = data instanceof FormData;
-        $.ajax({
+
+        // Return the AJAX request so that it can be used with `.then()`
+        return $.ajax({
             url: url,
             type: method,
             data: data,
-            processData: !isFormData, // Don't process FormData (it handles itself)
-            contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8', // Set correct content type
-            success: function (response) {
-                handleResponse(response);
-                reloadTables(reloadTable)
-            },
-            error: function (xhr) {
-                handleResponse(response);
-            }
+            processData: !isFormData,
+            contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
+        }).done(function (response) {
+            
+            handleResponse(response);
+            reloadTables(reloadTable);
+        }).fail(function (xhr) {
+            handleResponse(xhr.responseJSON || xhr);
         });
     }
+
 
 
 

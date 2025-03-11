@@ -4,6 +4,8 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
+use Modules\Logger\Logging\MySQLCustomLogger;
+use Modules\Logger\Logging\MySQLLoggingHandler;
 
 return [
 
@@ -50,12 +52,17 @@ return [
     |                    "custom", "stack"
     |
     */
-
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['ask_logger', 'single'],
             'ignore_exceptions' => false,
+        ],
+        'ask_logger' => [
+            'driver' => 'custom',
+            'handler' => MySQLLoggingHandler::class,
+            'via' => MySQLCustomLogger::class,
+            'level' => 'debug',
         ],
 
         'single' => [
@@ -89,7 +96,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
