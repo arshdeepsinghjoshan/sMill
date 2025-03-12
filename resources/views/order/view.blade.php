@@ -184,6 +184,17 @@ use App\Models\User;
 
 
 </div>
+<script>
+    var cartUrl = "{{url('cart/add')}}";
+    var orderAddUrl = "{{url('/order/add')}}";
+    var cartDeletItemUrl = "{{url('cart/delete-cart-item')}}";
+    var cartUpdateQuantityUrl = "{{url('cart/update-quantity')}}";
+    var cartUpdateGrindPriceUrl = "{{url('/cart/update-grind-price')}}";
+    var cartChangeQuantityUrl = "{{url('cart/change-quantity')}}";
+    var cartCustomUpdateQuantityUrl = "{{url('/cart/custom-product')}}";
+    var userAdd = "{{url('/user/add')}}";
+    var installmentStore = "{{url('/installment/store')}}";
+</script>
 <script src="{{ asset('/js/cart.js') }}"></script>
 
 @endsection

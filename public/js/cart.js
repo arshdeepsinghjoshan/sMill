@@ -16,7 +16,7 @@
             }
         });
         const form = $(this).closest('form'); // Get the closest form element
-        const url = '/installment/store'; // Get the form's action URL
+        const url = installmentStore; // Get the form's action URL
         const formData = new FormData(form[0]); // Collect form data
         const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
         formData.append('grindPrice', grindPrice ?? 2);
@@ -61,7 +61,7 @@
         e.preventDefault();
         const user_id = $('#user_id').val();
         sendAjaxRequest({
-            url: '/order/add', data: {
+            url: orderAddUrl, data: {
                 user_id: user_id
             }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
         })
@@ -72,7 +72,7 @@
         var cartid = JSON.parse(this.getAttribute("data-cartid"));
         const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
         sendAjaxRequest({
-            url: '/cart/delete-cart-item', data: {
+            url: cartDeletItemUrl, data: {
                 cartid: cartid,
                 grindPrice: grindPrice ?? 2,
             }, reloadTable: ['#cart_list', '#cart_checkout', '#order_product_table']
@@ -108,7 +108,7 @@
             }
 
             sendAjaxRequest({
-                url: '/cart/update-quantity',
+                url: cartUpdateQuantityUrl,
                 data: {
                     product_id: product_id,
                     quantity: quantity,
@@ -130,7 +130,7 @@
             e.preventDefault();
             const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
             sendAjaxRequest({
-                url: '/cart/update-grind-price', data: {
+                url: cartUpdateGrindPriceUrl, data: {
                     grindPrice: grindPrice ?? 2,
                 }, reloadTable: ['#cart_list', '#cart_checkout']
             })
@@ -148,7 +148,7 @@
         var type_id = this.getAttribute("data-type");
         const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
         sendAjaxRequest({
-            url: '/cart/change-quantity', data: {
+            url: cartChangeQuantityUrl, data: {
                 product_id: product_id,
                 type_id: type_id,
                 cartid: cartid,
@@ -164,7 +164,7 @@
             }
         });
         const form = $(this).closest('form'); // Get the closest form element
-        const url = '/cart/custom-product'; // Get the form's action URL
+        const url = cartCustomUpdateQuantityUrl; // Get the form's action URL
         const formData = new FormData(form[0]); // Collect form data
         const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
         formData.append('grindPrice', grindPrice ?? 2);
@@ -209,7 +209,7 @@
             }
         });
         const form = $(this).closest('form'); // Get the closest form element
-        const url = '/user/add'; // Get the form's action URL
+        const url = userAdd; // Get the form's action URL
         const formData = new FormData(form[0]); // Collect form data
         const grindPrice = $('#grindPrice').val(); // Get the product ID from the data attribute
         formData.append('grindPrice', grindPrice ?? 2);
@@ -248,17 +248,17 @@
     });
     $(document).on('click', '.select-product', function (e) {
         // e.preventDefault();
-    
-        const productId = $(this).data('product_id'); 
-        const grindPrice = $('#grindPrice').val(); 
+
+        const productId = $(this).data('product_id');
+        const grindPrice = $('#grindPrice').val();
         const isChecked = $(this).is(':checked');
         let type_id = isChecked ? '1' : '0';
-    
+
         let $checkbox = $(this);
         $checkbox.prop('disabled', true); // Disable checkbox during API request
-    
+
         sendAjaxRequest({
-            url: '/cart/add',
+            url: cartUrl,
             data: { product_id: productId, type_id: type_id, grindPrice: grindPrice ?? 2 },
             reloadTable: ['#cart_list', '#cart_checkout']
         }).then(() => {
@@ -267,7 +267,7 @@
             $checkbox.prop('disabled', false); // Re-enable on error
         });
     });
-    
+
     function handleResponse(response) {
         var toastG = document.getElementById('toastG');
         var toastBody = toastG.querySelector('.toast-body');
@@ -313,7 +313,7 @@
             processData: !isFormData,
             contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
         }).done(function (response) {
-            
+
             handleResponse(response);
             reloadTables(reloadTable);
         }).fail(function (xhr) {

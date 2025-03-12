@@ -22,6 +22,17 @@
             'label' => 'Orders',
         ],
     ]" />
+
+<script>
+    var cartUrl = "{{url('cart/add')}}";
+    var orderAddUrl = "{{url('/order/add')}}";
+    var cartDeletItemUrl = "{{url('cart/delete-cart-item')}}";
+    var cartUpdateQuantityUrl = "{{url('cart/update-quantity')}}";
+    var cartUpdateGrindPriceUrl = "{{url('/cart/update-grind-price')}}";
+    var cartChangeQuantityUrl = "{{url('cart/change-quantity')}}";
+    var cartCustomUpdateQuantityUrl = "{{url('/cart/custom-product')}}";
+    var userAdd = "{{url('/user/add')}}";
+</script>
 <script src="{{ asset('/js/cart.js') }}"></script>
 
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -159,9 +170,9 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                Close
-                            </button>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    Close
+                                </button>
                             </div>
                             <div class="text-center"><b>OR</b></div>
                             <div class="row g-2 mt-2">
